@@ -1,7 +1,7 @@
 from flask import Flask, request, jsonify
-from app_configs import Config
+from app_configs import Config #Classe de configurações padrões do app
 from database import db
-from models.company_user import CompanyUser
+from models.company_user import CompanyUser #Usuario
 from models.purchase import Purchase
 from flask_login import LoginManager, login_user, current_user, logout_user, login_required
 import bcrypt
@@ -21,7 +21,7 @@ login_manager.login_view = 'login'  # nome da rota
 
 @login_manager.user_loader
 def load_user(id_empresa):
-    return CompanyUser.query.get(id_empresa)
+    return CompanyUser.query.get(id_empresa) 
 
 
 @app.route("/login", methods=["POST"])
@@ -37,12 +37,13 @@ def login():
 
     if email and senha:
 
+        #Pega o primeiro usuario que achar com esse email, logo, só deve poder cadastrar o email 1 vez
         user = CompanyUser.query.filter_by(email=email).first()
 
         # bcrypt.checkpw(str.encode(senha), str.encode(user.senha)):
         if user and user.senha == senha:
             login_user(user)
-            print(current_user.is_authenticated)
+            print(current_user.is_authenticated) #Depois de logar o usuario o acesso dele passa a ser por "current_user"
             return jsonify({"message": "Autenticação bem sucedida"})
 
     return jsonify({"message": "Credenciais inválidas"}), 400
@@ -79,11 +80,13 @@ def create_user():
     is_admin = data.get("is_admin")
 
     if cnpj and email and senha:
-        db_user = CompanyUser.query.filter(CompanyUser.email == email).all()
+        #Procura se existe um usuario com esse email
+        db_user = CompanyUser.query.filter(CompanyUser.email == email).first()
 
-        if not db_user:
+        #Se nao existir, passa para a fase de criação
+        if not db_user: 
             # hashed_password = bcrypt.hashpw(str.encode(senha), bcrypt.gensalt())
-            if is_admin:
+            if is_admin: 
                 user = CompanyUser(razao_social=razao_social,
                                    cnpj=cnpj,
                                    email=email,
@@ -132,8 +135,9 @@ def read_user():
 @login_required
 def update_user():
     """
-    Rota para 
-    :return: 
+    Rota para alteração de dados do usuário
+    
+    :return: Mensagem indicando se a criação foi bem sucedida ou não
     """""
     data = request.json
     user = CompanyUser.query.get(current_user.id)
