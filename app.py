@@ -147,7 +147,7 @@ def update_user():
         db.session.commit()
         return jsonify({"message": f"Usuário {id_user} atualizado com sucesso."})
 
-    return jsonify({"message": f"Usuário não encontrado"}), 404
+    return jsonify({"message": "Usuário não encontrado"}), 404
 
 
 @app.route('/user/<int:id_user>', methods=["DELETE"])
@@ -172,7 +172,7 @@ def delete_user(id_user):
         db.session.commit()
         return jsonify({"message": f"Usuário {id_user} deletado com sucesso."})
 
-    return jsonify({"message": f"Usuário não encontrado"}), 404
+    return jsonify({"message": "Usuário não encontrado"}), 404
 
 
 @app.route("/", methods=["GET"])

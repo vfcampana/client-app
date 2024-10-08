@@ -1,17 +1,17 @@
 # essa classe deve ter os campos limpos, pra não passar informações pro git
 
 class Config(object):
-    DB_HOST = ""
-    DB_NAME = ""
-    DB_USER = ""
+    DB_HOST = "localhost"
+    DB_NAME = "mogai"
+    DB_USER = "postgres"
     DB_PASSWORD = ""
-    DB_PORT = ""
+    DB_PORT = "5423"
     DEBUG = False
     TESTING = False
     CSRF_ENABLED = True
     SECRET_KEY = ''
     SQLALCHEMY_TRACK_MODIFICATIONS = False
-    SQLALCHEMY_DATABASE_URI = ''
+    SQLALCHEMY_DATABASE_URI = 'postgresql://postgres:senha@localhost/mogai'
 
 # Não sei se vai precisar dessas coisas ainda
 class ProductionConfig(Config):
