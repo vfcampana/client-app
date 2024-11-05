@@ -11,7 +11,7 @@ class Config(object):
     CSRF_ENABLED = True
     SECRET_KEY = ''
     SQLALCHEMY_TRACK_MODIFICATIONS = False
-    SQLALCHEMY_DATABASE_URI = 'postgresql://postgres:senha@localhost/mogai'
+    SQLALCHEMY_DATABASE_URI = ''
 
 # Não sei se vai precisar dessas coisas ainda
 class ProductionConfig(Config):

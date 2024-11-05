@@ -1,22 +1,40 @@
-from database import db
 from datetime import datetime
-
+from sqlalchemy.orm import declarative_base
 from flask_login import UserMixin
+from sqlalchemy import Column, Integer, String, Boolean, DateTime, Text, ForeignKey
+from sqlalchemy import create_engine
+from sqlalchemy.engine import URL
+from sqlalchemy.orm import sessionmaker
+
+url = URL.create(
+    drivername="",
+    username="",
+    host="",
+    database="",
+    password="",
+    port=23939
+)
+
+engine = create_engine(url)
+conection = engine.connect()
+
+Base = declarative_base()
 
 
-class CompanyUser(db.Model, UserMixin):
-    # precisa se chamar id pra login, eu acho
-    id: int = db.Column(db.Integer, primary_key=True, unique=True)
-    razao_social: str = db.Column(db.String(80), nullable=True)
-    cnpj: str = db.Column(db.String(80), nullable=False)
-    email: str = db.Column(db.String(80), nullable=False)
-    senha: str = db.Column(db.String(80), nullable=False)
-    telefones: list = db.Column(db.String(255), nullable=True)
-    is_active: bool = db.Column(db.Boolean, default=True)
-    registrado: datetime = db.Column(db.DateTime)
-    atualizado: datetime = db.Column(db.DateTime)
-    qtd_blocos: int = db.Column(db.Integer, default=0)
-    role: str = db.Column(db.String(80), nullable=False, default='user')
+class CompanyUser(Base, UserMixin):
+    __tablename__ = 'company_users'
+
+    id = Column(Integer, primary_key=True, unique=True)
+    razao_social = Column(String(80), nullable=True)
+    cnpj = Column(String(80), nullable=False)
+    email = Column(String(80), nullable=False)
+    senha = Column(String(80), nullable=False)
+    telefones = Column(String(255), nullable=True)
+    is_active = Column(Boolean, default=True)
+    registrado = Column(DateTime, default=datetime.now)
+    atualizado = Column(DateTime, default=datetime.now, onupdate=datetime.now)
+    qtd_blocos = Column(Integer, default=0)
+    role = Column(String(80), nullable=False, default='user')
 
     def to_dict(self):
         return {
@@ -32,3 +50,15 @@ class CompanyUser(db.Model, UserMixin):
             "qtd_blocos": self.qtd_blocos,
             "role": self.role
         }
+
+Base.metadata.create_all(engine)
+Session = sessionmaker(bind=engine)
+session = Session()
+
+# Example query to get all active company users
+active_company = session.query(CompanyUser).filter_by(is_active=True).all()
+
+for company in active_company:
+    print(company.to_dict())
+
+session.close()

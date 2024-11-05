@@ -1,25 +1,23 @@
-from database import db
 from datetime import datetime
 from company_user import CompanyUser
 from sqlalchemy import ForeignKey
 from datetime import datetime
+from sqlalchemy import Column, Integer, String, Boolean, DateTime, Text, ForeignKey
 
 
 class OrnamentalBlock(db.Model):
-    id_bloco: int = db.Column(db.Integer, primary_key=True)
-    id_dono: int = db.Column(db.Integer, ForeignKey('companyuser.id_empresa'))
-    material: str = db.Column()
-    is_active: bool = db.Column(db.Boolean, default=True)
-    registrado: datetime = db.Column(db.DateTime)
-    atualizado: datetime = db.Column(db.DateTime)
+    __tablename__ = 'ornamental_block'
 
-    # def __init__(self, block_info: dict):
-    #     self.id_bloco: int = block_info.get("id_bloco")
-    #     self.id_dono: int = block_info.get("id_dono")
-    #     self.material: str = block_info.get("material")
-    #     self.is_active: bool = True
-    #     self.registrado: datetime = datetime.now()
-    #     self.atualizado: datetime = datetime.now()
-    #
+    id_bloco = Column(Integer, primary_key=True)
+    id_dono = Column(Integer, ForeignKey('companyuser.id_empresa'))
+    material = Column(String, nullable=False)
+    is_active = Column(Boolean, default=True)
+    registrado = Column(DateTime, default=datetime.now)
+    atualizado = Column(DateTime, default=datetime.now, onupdate=datetime.now)
 
-        # smartcontract_id : check_sum_address.CheckSumAddress
+    def __init__(self, id_dono, material):
+        self.id_dono = id_dono
+        self.material = material
+        self.is_active = True
+        self.registrado = default=datetime.now()
+        self.atualizado = default=datetime.now()

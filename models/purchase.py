@@ -1,19 +1,21 @@
-from database import db
 from datetime import datetime
+from sqlalchemy import Column, Integer, String, Boolean, DateTime, Text, ForeignKey
 
 
 # Responsible for changing block's owners and have the transaction data
 class Purchase(db.Model):
-    id_transacao: int = db.Column(db.Integer, primary_key=True)
-    id_vendedor: int = db.Column(db.Integer)
-    id_comprador: int = db.Column(db.Integer)
-    data_venda: datetime = db.Column(db.DateTime)
-    data_sincronizacaoBC: datetime = db.Column(db.DateTime)
+    __tablename__ = 'purchase'
+
+    id_transacao = Column(Integer, primary_key=True)
+    id_vendedor = Column(Integer, nullable=False)
+    id_comprador = Column(Integer, nullable=False)
+    data_venda = Column(DateTime, nullable=False, default=datetime.now)
+    data_sincronizacaoBC = Column(DateTime, nullable=False, default=datetime.now)
 
     def __init__(self, company_info: dict):
-        self.id_transacao: int = company_info.get("id_empresa")
-        self.id_vendedor: str = company_info.get("razao_social")
-        self.id_comprador: str = company_info.get("cnpj")
-        self.data_venda: str = company_info.get("email")
-        self.data_sincronizacaoBC: str = company_info.get("senha")
+        self.id_transacao = company_info.get("id_empresa")
+        self.id_vendedor = company_info.get("razao_social")
+        self.id_comprador = company_info.get("cnpj")
+        self.data_venda = company_info.get("email")
+        self.data_sincronizacaoBC = company_info.get("senha")
 
