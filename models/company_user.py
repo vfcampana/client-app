@@ -6,17 +6,8 @@ from sqlalchemy import create_engine
 from sqlalchemy.engine import URL
 from sqlalchemy.orm import sessionmaker
 
-url = URL.create(
-    drivername="",
-    username="",
-    host="",
-    database="",
-    password="",
-    port=23939
-)
+from database import engine
 
-engine = create_engine(url)
-conection = engine.connect()
 
 Base = declarative_base()
 

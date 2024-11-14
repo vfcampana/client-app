@@ -5,7 +5,7 @@ from models.company_user import CompanyUser #Usuario
 from sqlalchemy.orm import sessionmaker
 from flask_login import LoginManager, login_user, current_user, logout_user, login_required
 from datetime import datetime
-
+import bcrypt
 app = Flask(__name__)
 
 app.config.from_object(Config)
@@ -42,8 +42,7 @@ def login():
         if email and senha:
             #Pega o primeiro usuario que achar com esse email, logo, só deve poder cadastrar o email 1 vez
             user = session.query(CompanyUser).filter(CompanyUser.email == email).first()
-            
-            # bcrypt.checkpw(str.encode(senha), str.encode(user.senha)):
+            # bcrypt.checkpw(str.encode(senha), str.encode(user.senha))
             if user and user.senha == senha:
                 login_user(user)
                 print(current_user.is_authenticated) #Depois de logar o usuario o acesso dele passa a ser por "current_user"
@@ -79,8 +78,6 @@ def create_user():
         senha = data.get("senha")
         # valores separados por vírgula, por enquanto
         telefones = data.get("telefones")
-        registrado = data.get("registrado")
-        atualizado = data.get("atualizado")
         is_admin = data.get("is_admin")
 
         if cnpj and email and senha:
@@ -91,7 +88,7 @@ def create_user():
 
             #Se nao existir, passa para a fase de criação
             if not db_user: 
-                # hashed_password = bcrypt.hashpw(str.encode(senha), bcrypt.gensalt())
+                #hashed_password = bcrypt.hashpw(str.encode(senha), bcrypt.gensalt())
                 user = CompanyUser(
                     razao_social=razao_social,
                     cnpj=cnpj,
