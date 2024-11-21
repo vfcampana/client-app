@@ -19,7 +19,7 @@ class CompanyUser(Base, UserMixin):
     razao_social = Column(String(80), nullable=True)
     cnpj = Column(String(80), nullable=False)
     email = Column(String(80), nullable=False)
-    senha = Column(String(80), nullable=False)
+    senha = Column(String(255), nullable=False)
     telefones = Column(String(255), nullable=True)
     is_active = Column(Boolean, default=True)
     registrado = Column(DateTime, default=datetime.now)

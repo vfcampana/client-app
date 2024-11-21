@@ -42,8 +42,8 @@ def login():
         if email and senha:
             #Pega o primeiro usuario que achar com esse email, logo, só deve poder cadastrar o email 1 vez
             user = session.query(CompanyUser).filter(CompanyUser.email == email).first()
-            # bcrypt.checkpw(str.encode(senha), str.encode(user.senha))
-            if user and user.senha == senha:
+            if user and bcrypt.checkpw(str.encode(senha), user.senha):
+                print(user.senha, str).encode(senha)
                 login_user(user)
                 print(current_user.is_authenticated) #Depois de logar o usuario o acesso dele passa a ser por "current_user"
                 return jsonify({"message": f"Autenticação bem sucedida {email} : {user.senha}"})
@@ -88,12 +88,13 @@ def create_user():
 
             #Se nao existir, passa para a fase de criação
             if not db_user: 
-                #hashed_password = bcrypt.hashpw(str.encode(senha), bcrypt.gensalt())
+                hashed_password = bcrypt.hashpw(str.encode(senha), bcrypt.gensalt())
+                print(hashed_password)
                 user = CompanyUser(
                     razao_social=razao_social,
                     cnpj=cnpj,
                     email=email,
-                    senha=senha,
+                    senha=hashed_password,
                     telefones=telefones,
                     registrado=datetime.now(),
                     atualizado=datetime.now(),
