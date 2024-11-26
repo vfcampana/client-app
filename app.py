@@ -6,6 +6,8 @@ from sqlalchemy.orm import sessionmaker
 from flask_login import LoginManager, login_user, current_user, logout_user, login_required
 from datetime import datetime
 import bcrypt
+
+from models.ornamental_block import OrnamentalBlock
 app = Flask(__name__)
 
 app.config.from_object(Config)
@@ -42,7 +44,7 @@ def login():
         if email and senha:
             #Pega o primeiro usuario que achar com esse email, logo, só deve poder cadastrar o email 1 vez
             user = session.query(CompanyUser).filter(CompanyUser.email == email).first()
-            if user and bcrypt.checkpw(str.encode(senha), user.senha):
+            if user and senha == user.senha:
                 print(user.senha, str).encode(senha)
                 login_user(user)
                 print(current_user.is_authenticated) #Depois de logar o usuario o acesso dele passa a ser por "current_user"
@@ -88,13 +90,13 @@ def create_user():
 
             #Se nao existir, passa para a fase de criação
             if not db_user: 
-                hashed_password = bcrypt.hashpw(str.encode(senha), bcrypt.gensalt())
-                print(hashed_password)
+                #hashed_password = bcrypt.hashpw(str.encode(senha), bcrypt.gensalt())
+                #print(hashed_password)
                 user = CompanyUser(
                     razao_social=razao_social,
                     cnpj=cnpj,
                     email=email,
-                    senha=hashed_password,
+                    senha=senha,
                     telefones=telefones,
                     registrado=datetime.now(),
                     atualizado=datetime.now(),
@@ -172,6 +174,60 @@ def delete_user(id_user):
             return jsonify({"message": f"Usuário {id_user} deletado com sucesso."})
 
     return jsonify({"message": "Usuário não encontrado"}), 404
+
+@app.route('/cadastra_bloco', methods=["POST"])
+@login_required
+def cadastra_bloco():
+    """
+    Rota para cadastro de blocos. Apenas usuários autenticados podem cadastrar blocos.
+
+    :return: Mensagem indicando se a criação foi bem sucedida ou não
+    """
+    data = request.form
+    valor = data.get("valor")
+    titulo = data.get("titulo")
+    classificao = data.get("classificao")
+    coloracao = data.get("coloracao")
+    material = data.get("material")
+    
+    medida_bruta = data.get("medida_bruta")
+    volume_bruto = data.get("volume_bruto")
+    medida_liquida = data.get("medida_liquida")
+    volume_liquido = data.get("volume_liquido")
+    pedreira = data.get("pedreira")
+    frente_pedreira = data.get("frente_pedreira")
+    info = data.get("info")
+    cep = data.get("cep")
+    frete = data.get("frete")
+    localizacao = data.get("localizacao")
+    
+    if valor and titulo and classificao and coloracao and material and medida_bruta and volume_bruto and medida_liquida and volume_liquido and pedreira and frente_pedreira and info and cep and frete and localizacao:
+        
+        user = session.query(CompanyUser).get(current_user.id)
+        
+        bloco = OrnamentalBlock(
+            id_dono=current_user.id,
+            material=material,
+            valor=valor,
+            titulo=titulo,
+            classificao=classificao,
+            coloracao=coloracao,
+            medida_bruta=medida_bruta,
+            volume_bruto=volume_bruto,
+            medida_liquida=medida_liquida,
+            volume_liquido=volume_liquido,
+            pedreira=pedreira,
+            frente_pedreira=frente_pedreira,
+            info=info,
+            cep=cep,
+            frete=frete,
+            localizacao=localizacao
+        )
+        session.add(bloco)        
+        session.commit()
+        return jsonify({"message": f"Bloco {bloco} cadastrado com sucesso."})
+
+    return jsonify({"message": "Bloco inválido"}), 400
 
 
 @app.route("/", methods=["GET"])
