@@ -1,17 +1,17 @@
 from datetime import datetime
-from company_user import CompanyUser
 from sqlalchemy import ForeignKey
 from flask_login import UserMixin
-
 from datetime import datetime
 from sqlalchemy import Column, Integer, String, Boolean, DateTime, Text, ForeignKey
+from sqlalchemy.orm import declarative_base
 
+Base = declarative_base()   
 
 class OrnamentalBlock(Base, UserMixin):
     __tablename__ = 'ornamental_block'
 
-    id_bloco = Column(Integer, primary_key=True, autoincrement=True)
-    id_dono = Column(Integer, ForeignKey('companyuser.id_empresa'))
+    id_bloco = Column(Integer, primary_key=True, unique=True)
+    id_dono = Column(Integer, ForeignKey('company_users.id_empresa'))
     material = Column(String, nullable=False)
     is_active = Column(Boolean, default=True)
     registrado = Column(DateTime, default=datetime.now)

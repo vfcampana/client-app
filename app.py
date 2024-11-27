@@ -9,6 +9,8 @@ import bcrypt
 
 from models.ornamental_block import OrnamentalBlock
 app = Flask(__name__)
+app.secret_key = 'super secret key'
+
 
 app.config.from_object(Config)
 
@@ -22,12 +24,12 @@ Session = sessionmaker(bind=engine)
 session = Session()
 
 
+
 @login_manager.user_loader
 def load_user(id_empresa):
     return session.query(CompanyUser).get(id_empresa)
 
 
-app.secret_key = ''
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
@@ -175,59 +177,62 @@ def delete_user(id_user):
 
     return jsonify({"message": "Usuário não encontrado"}), 404
 
-@app.route('/cadastra_bloco', methods=["POST"])
-@login_required
+@app.route('/cadastra_bloco', methods=["GET", "POST"])
+#@login_required
 def cadastra_bloco():
     """
     Rota para cadastro de blocos. Apenas usuários autenticados podem cadastrar blocos.
 
     :return: Mensagem indicando se a criação foi bem sucedida ou não
     """
-    data = request.form
-    valor = data.get("valor")
-    titulo = data.get("titulo")
-    classificao = data.get("classificao")
-    coloracao = data.get("coloracao")
-    material = data.get("material")
     
-    medida_bruta = data.get("medida_bruta")
-    volume_bruto = data.get("volume_bruto")
-    medida_liquida = data.get("medida_liquida")
-    volume_liquido = data.get("volume_liquido")
-    pedreira = data.get("pedreira")
-    frente_pedreira = data.get("frente_pedreira")
-    info = data.get("info")
-    cep = data.get("cep")
-    frete = data.get("frete")
-    localizacao = data.get("localizacao")
-    
-    if valor and titulo and classificao and coloracao and material and medida_bruta and volume_bruto and medida_liquida and volume_liquido and pedreira and frente_pedreira and info and cep and frete and localizacao:
+    if request.method == "POST":
+        data = request.form
+        valor = data.get("valor")
+        titulo = data.get("titulo")
+        classificao = data.get("classificao")
+        coloracao = data.get("coloracao")
+        material = data.get("material")
+        medida_bruta = data.get("medida_bruta")
         
-        user = session.query(CompanyUser).get(current_user.id)
+        volume_bruto = data.get("volume_bruto")
+        medida_liquida = data.get("medida_liquida")
+        volume_liquido = data.get("volume_liquido")
+        pedreira = data.get("pedreira")
+        frente_pedreira = data.get("frente_pedreira")
+        info = data.get("info")
+        cep = data.get("cep")
+        frete = data.get("frete")
+        localizacao = data.get("localizacao")
         
-        bloco = OrnamentalBlock(
-            id_dono=current_user.id,
-            material=material,
-            valor=valor,
-            titulo=titulo,
-            classificao=classificao,
-            coloracao=coloracao,
-            medida_bruta=medida_bruta,
-            volume_bruto=volume_bruto,
-            medida_liquida=medida_liquida,
-            volume_liquido=volume_liquido,
-            pedreira=pedreira,
-            frente_pedreira=frente_pedreira,
-            info=info,
-            cep=cep,
-            frete=frete,
-            localizacao=localizacao
-        )
-        session.add(bloco)        
-        session.commit()
-        return jsonify({"message": f"Bloco {bloco} cadastrado com sucesso."})
-
-    return jsonify({"message": "Bloco inválido"}), 400
+        if valor and titulo and classificao and coloracao and material and medida_bruta and volume_bruto and medida_liquida and volume_liquido and pedreira and frente_pedreira and info and cep and frete and localizacao:
+            
+            user = session.query(CompanyUser).get(current_user.id)
+            
+            bloco = OrnamentalBlock(
+                id_dono=user,
+                material=material,
+                valor=valor,
+                titulo=titulo,
+                classificao=classificao,
+                coloracao=coloracao,
+                medida_bruta=medida_bruta,
+                volume_bruto=volume_bruto,
+                medida_liquida=medida_liquida,
+                volume_liquido=volume_liquido,
+                pedreira=pedreira,
+                frente_pedreira=frente_pedreira,
+                info=info,
+                cep=cep,
+                frete=frete,
+                localizacao=localizacao
+            )
+            session.add(bloco)        
+            session.commit()
+            return jsonify({"message": f"Bloco {bloco} cadastrado com sucesso."})
+        return jsonify({"message": "Bloco inválido"}), 400
+    else:
+        return render_template("cadastra_bloco.html")
 
 
 @app.route("/", methods=["GET"])
