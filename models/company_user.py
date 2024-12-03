@@ -1,15 +1,12 @@
 from datetime import datetime
-from sqlalchemy.orm import declarative_base
 from flask_login import UserMixin
 from sqlalchemy import Column, Integer, String, Boolean, DateTime, Text, ForeignKey
 from sqlalchemy import create_engine
 from sqlalchemy.engine import URL
 from sqlalchemy.orm import sessionmaker
-
+from . import Base
 from database import engine
 
-
-Base = declarative_base()
 
 
 class CompanyUser(Base, UserMixin):
@@ -42,14 +39,14 @@ class CompanyUser(Base, UserMixin):
             "role": self.role
         }
 
-Base.metadata.create_all(engine)
-Session = sessionmaker(bind=engine)
-session = Session()
+'''Session = sessionmaker(bind=engine)
+    session = Session()
 
-# Example query to get all active company users
-active_company = session.query(CompanyUser).filter_by(is_active=True).all()
+    # Example query to get all active company users
+    active_company = session.query(CompanyUser).filter_by(is_active=True).all()
 
-for company in active_company:
-    print(company.to_dict())
+    for company in active_company:
+        print(company.to_dict())
 
-session.close()
+    session.close()
+'''

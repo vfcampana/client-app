@@ -1,17 +1,15 @@
 from datetime import datetime
 from sqlalchemy import ForeignKey
-from flask_login import UserMixin
 from datetime import datetime
 from sqlalchemy import Column, Integer, String, Boolean, DateTime, Text, ForeignKey
-from sqlalchemy.orm import declarative_base
+from . import Base
 
-Base = declarative_base()   
 
-class OrnamentalBlock(Base, UserMixin):
+class OrnamentalBlock(Base):
     __tablename__ = 'ornamental_block'
 
     id_bloco = Column(Integer, primary_key=True, unique=True)
-    id_dono = Column(Integer, ForeignKey('company_users.id_empresa'))
+    id_dono = Column(Integer, ForeignKey('company_users.id'))
     material = Column(String, nullable=False)
     is_active = Column(Boolean, default=True)
     registrado = Column(DateTime, default=datetime.now)
@@ -31,9 +29,29 @@ class OrnamentalBlock(Base, UserMixin):
     frete = Column(String, nullable=False)
     localizacao = Column(String, nullable=False)
     
-    def __init__(self, id_dono, material):
-        self.id_dono = id_dono
-        self.material = material
-        self.is_active = True
-        self.registrado = datetime.now()
-        self.atualizado = datetime.now()
+    
+    def to_dict(self):
+        return {
+            'id_bloco': self.id_bloco,
+            'id_dono': self.id_dono,
+            'material': self.material,
+            'is_active': self.is_active,
+            'registrado': self.registrado,
+            'atualizado': self.atualizado,
+            'valor': self.valor,
+            'titulo': self.titulo,
+            'classificao': self.classificao,
+            'coloracao': self.coloracao,
+            'medida_bruta': self.medida_bruta,
+            'volume_bruto': self.volume_bruto,
+            'medida_liquida': self.medida_liquida,
+            'volume_liquido': self.volume_liquido,
+            'pedreira': self.pedreira,
+            'frente_pedreira': self.frente_pedreira,
+            'info': self.info,
+            'cep': self.cep,
+            'frete': self.frete,
+            'localizacao': self.localizacao
+        }
+    
+    

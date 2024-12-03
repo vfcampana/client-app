@@ -1,10 +1,8 @@
-from datetime import datetime
 from sqlalchemy import Column, Integer, String, Boolean, DateTime, Text, ForeignKey
-from flask_login import UserMixin
-
+from . import Base
 
     
-class BlockImages(UserMixin):
+class BlockImages(Base):
     __tablename__ = 'block_images'
 
     image_id = Column(Integer, primary_key=True)

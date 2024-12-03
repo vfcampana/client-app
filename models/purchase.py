@@ -1,9 +1,9 @@
 from datetime import datetime
 from sqlalchemy import Column, Integer, String, Boolean, DateTime, Text, ForeignKey
-from flask_login import UserMixin
+from . import Base
 
 # Responsible for changing block's owners and have the transaction data
-class Purchase(UserMixin):
+class Purchase(Base):
     __tablename__ = 'purchase'
 
     id_transacao = Column(Integer, primary_key=True)
@@ -18,4 +18,5 @@ class Purchase(UserMixin):
         self.id_comprador = company_info.get("cnpj")
         self.data_venda = company_info.get("email")
         self.data_sincronizacaoBC = company_info.get("senha")
+
 

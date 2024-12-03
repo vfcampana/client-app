@@ -1,7 +1,7 @@
 from flask import Flask, request, jsonify, render_template, redirect
 from app_configs import Config #Classe de configurações padrões do app
 from database import engine
-from models.company_user import CompanyUser #Usuario
+from models import CompanyUser, OrnamentalBlock, BlockImages, Purchase #Usuario
 from sqlalchemy.orm import sessionmaker
 from flask_login import LoginManager, login_user, current_user, logout_user, login_required
 from datetime import datetime
@@ -9,8 +9,6 @@ import bcrypt
 
 from models.ornamental_block import OrnamentalBlock
 app = Flask(__name__)
-app.secret_key = 'super secret key'
-
 
 app.config.from_object(Config)
 
@@ -19,6 +17,11 @@ login_manager.init_app(app)
 
 # view login
 login_manager.login_view = 'login'  # nome da rota
+
+app.secret_key = '1234'
+
+CompanyUser.__table__.create(bind=engine, checkfirst=True)
+OrnamentalBlock.__table__.create(bind=engine, checkfirst=True)
 
 Session = sessionmaker(bind=engine)
 session = Session()
@@ -47,10 +50,8 @@ def login():
             #Pega o primeiro usuario que achar com esse email, logo, só deve poder cadastrar o email 1 vez
             user = session.query(CompanyUser).filter(CompanyUser.email == email).first()
             if user and senha == user.senha:
-                print(user.senha, str).encode(senha)
                 login_user(user)
-                print(current_user.is_authenticated) #Depois de logar o usuario o acesso dele passa a ser por "current_user"
-                return jsonify({"message": f"Autenticação bem sucedida {email} : {user.senha}"})
+                return jsonify({f"message": f"Autenticação bem sucedida"})
 
         return jsonify({"message": "Credenciais inválidas"}), 400
     else:
@@ -111,7 +112,7 @@ def create_user():
             else:
                 return jsonify({"message": "Usuário já cadastrado"}), 409
         else:
-            return jsonify({"message": "Dados inválidos"}), 401
+            return jsonify({"message": "Dados inválidjos"}), 401
     else:
         return render_template("index.html")
 
@@ -178,7 +179,7 @@ def delete_user(id_user):
     return jsonify({"message": "Usuário não encontrado"}), 404
 
 @app.route('/cadastra_bloco', methods=["GET", "POST"])
-#@login_required
+@login_required
 def cadastra_bloco():
     """
     Rota para cadastro de blocos. Apenas usuários autenticados podem cadastrar blocos.
@@ -210,11 +211,13 @@ def cadastra_bloco():
             user = session.query(CompanyUser).get(current_user.id)
             
             bloco = OrnamentalBlock(
-                id_dono=user,
+                id_dono=user.id,
                 material=material,
                 valor=valor,
                 titulo=titulo,
                 classificao=classificao,
+                registrado = datetime.now(),
+                atualizado = datetime.now(),
                 coloracao=coloracao,
                 medida_bruta=medida_bruta,
                 volume_bruto=volume_bruto,
