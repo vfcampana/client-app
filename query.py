@@ -8,6 +8,7 @@ session = Session()
 email = "adm@123"
 # Query para buscar todos os registros da classe CompanyUser
 company_users = session.query(OrnamentalBlock).all()
+
 user = session.query(CompanyUser).filter(CompanyUser.email == email).first()
 
 # Exibindo os resultados

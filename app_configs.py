@@ -9,9 +9,10 @@ class Config(object):
     DEBUG = False
     TESTING = False
     CSRF_ENABLED = True
-    SECRET_KEY = ''
+    SECRET_KEY = 'chave_secreta'
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     SQLALCHEMY_DATABASE_URI = ''
+    JWT_SECRET_KEY = 'chave_secreta'
 
 # Não sei se vai precisar dessas coisas ainda
 class ProductionConfig(Config):

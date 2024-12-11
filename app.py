@@ -4,6 +4,7 @@ from database import engine
 from models import CompanyUser, OrnamentalBlock, BlockImages, Purchase #Usuario
 from sqlalchemy.orm import sessionmaker
 from flask_login import LoginManager, login_user, current_user, logout_user, login_required
+from flask_jwt_extended import JWTManager, create_access_token, jwt_required
 from datetime import datetime
 import bcrypt
 
@@ -14,6 +15,7 @@ app.config.from_object(Config)
 
 login_manager = LoginManager()
 login_manager.init_app(app)
+jwt = JWTManager(app)
 
 # view login
 login_manager.login_view = 'login'  # nome da rota
@@ -179,7 +181,7 @@ def delete_user(id_user):
     return jsonify({"message": "Usuário não encontrado"}), 404
 
 @app.route('/cadastra_bloco', methods=["GET", "POST"])
-@login_required
+#@login_required
 def cadastra_bloco():
     """
     Rota para cadastro de blocos. Apenas usuários autenticados podem cadastrar blocos.
@@ -238,9 +240,21 @@ def cadastra_bloco():
         return render_template("cadastra_bloco.html")
 
 
+def get_meusblocos(current_user):
+    """
+    Rota para visualizar os blocos do usuário logado.
+
+    :return: Dicionário com informações ou mensagem de erro
+    """
+    blocos = session.query(OrnamentalBlock).filter(OrnamentalBlock.id_dono == current_user.id).all()
+    if blocos:
+        return jsonify([bloco.to_dict() for bloco in blocos])
+    return jsonify({"message": "Blocos não identificados"}), 404
+    
+
 @app.route("/", methods=["GET"])
 def initial_page():
     return render_template("index.html")
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    get_meusblocos(i)

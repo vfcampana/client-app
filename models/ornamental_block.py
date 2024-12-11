@@ -53,5 +53,9 @@ class OrnamentalBlock(Base):
             'frete': self.frete,
             'localizacao': self.localizacao
         }
+        
+    def trasferir_propriedade(self, novo_dono):
+        self.id_dono = novo_dono
+        self.atualizado = datetime.now()
     
     
