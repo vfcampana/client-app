@@ -7,6 +7,7 @@ from flask_login import LoginManager, login_user, current_user, logout_user, log
 from flask_jwt_extended import JWTManager, create_access_token, jwt_required
 from datetime import datetime
 import bcrypt
+from pdf import create_pdf
 
 from models.ornamental_block import OrnamentalBlock
 app = Flask(__name__)
@@ -53,7 +54,7 @@ def login():
             user = session.query(CompanyUser).filter(CompanyUser.email == email).first()
             if user and senha == user.senha:
                 login_user(user)
-                return jsonify({f"message": f"Autenticação bem sucedida"})
+                return redirect("/cadastra_bloco")
 
         return jsonify({"message": "Credenciais inválidas"}), 400
     else:
@@ -181,7 +182,7 @@ def delete_user(id_user):
     return jsonify({"message": "Usuário não encontrado"}), 404
 
 @app.route('/cadastra_bloco', methods=["GET", "POST"])
-#@login_required
+@login_required
 def cadastra_bloco():
     """
     Rota para cadastro de blocos. Apenas usuários autenticados podem cadastrar blocos.
@@ -234,6 +235,7 @@ def cadastra_bloco():
             )
             session.add(bloco)        
             session.commit()
+            create_pdf(bloco)
             return jsonify({"message": f"Bloco {bloco} cadastrado com sucesso."})
         return jsonify({"message": "Bloco inválido"}), 400
     else:
@@ -251,10 +253,21 @@ def get_meusblocos(current_user):
         return jsonify([bloco.to_dict() for bloco in blocos])
     return jsonify({"message": "Blocos não identificados"}), 404
     
+def filtra_bloco_preco():
+    """
+    Rota para visualizar os blocos do usuário logado.
 
+    :return: Dicionário com informações ou mensagem de erro
+    """
+    blocos = session.query(OrnamentalBlock).order_by(OrnamentalBlock.valor.desc()).all()
+    if blocos:
+        return jsonify([bloco.to_dict() for bloco in blocos])
+    return jsonify({"message": "Blocos não identificados"}), 404
+    
+    
 @app.route("/", methods=["GET"])
 def initial_page():
     return render_template("index.html")
 
 if __name__ == '__main__':
-    get_meusblocos(i)
+    app.run(debug=True)

@@ -1,7 +1,7 @@
 from datetime import datetime
 from sqlalchemy import ForeignKey
 from datetime import datetime
-from sqlalchemy import Column, Integer, String, Boolean, DateTime, Text, ForeignKey
+from sqlalchemy import Column, Integer, String, Boolean, DateTime, Text, ForeignKey, Float
 from . import Base
 
 
@@ -14,7 +14,7 @@ class OrnamentalBlock(Base):
     is_active = Column(Boolean, default=True)
     registrado = Column(DateTime, default=datetime.now)
     atualizado = Column(DateTime, default=datetime.now, onupdate=datetime.now)
-    valor = Column(String, nullable=False)
+    valor = Column(Float, nullable=False)
     titulo = Column(String, nullable=False)
     classificao = Column(String, nullable=False)
     coloracao = Column(String, nullable=False)
