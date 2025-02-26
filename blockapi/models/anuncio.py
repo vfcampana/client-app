@@ -1,5 +1,5 @@
 from sqlalchemy import Column, Integer, Date, ForeignKey
-from . import Base
+from extensions import Base
 
 class Anuncio(Base):
     __tablename__ = 'anuncio'

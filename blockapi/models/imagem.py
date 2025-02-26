@@ -1,5 +1,5 @@
 from sqlalchemy import Column, Integer, String, ForeignKey
-from . import Base
+from extensions import Base
 
 class Imagens(Base):
     __tablename__ = 'imagens'

@@ -1,5 +1,5 @@
 from sqlalchemy import Column, Integer, String, Float
-from . import Base
+from extensions import Base
 
 class Lote(Base):
     __tablename__ = 'lote'
