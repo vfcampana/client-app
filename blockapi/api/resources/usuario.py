@@ -17,12 +17,44 @@ class UsuarioProtected(Resource):
         return jsonify(logged_in_as=current_user_id)
     
 class UsuarioGet(Resource):
-    def get(self):
-        return jsonify({'usuario': 'usuario'})
+    def get(self, id ):
+        
+        id_usuario = id
+        
+        verificar = verificar_jwt()
+        
+        if verificar['code'] != 200:
+            response = jsonify({"message": verificar['message']})
+            response.status_code = verificar['code']
+            return response
+        
+        if not id_usuario:
+            response = jsonify({"message": "ID do usuário não fornecido"})
+            response.status_code = 400
+            return response
+        
+        user = session.query(Usuario).filter(Usuario.id == id_usuario).first()
 
-class UsuarioList(Resource):
-    def get(self):
-        return jsonify({'usuario': 'usuario'})
+        if user:
+            response = jsonify(
+            id=user.id,
+            nome=user.nome,
+            documento=user.documento,
+            email=user.email,
+            telefone=user.telefone,
+            cep=user.cep,
+            logradouro=user.logradouro,
+            cidade=user.cidade,
+            pais=user.pais,
+            data_registro=user.data_registro,
+            estado=user.estado
+            )
+            response.status_code = 200
+            return response
+        else:
+            response = jsonify({"message": "Usuário não encontrado"})
+            response.status_code = 404
+            return response
 
 class UsuarioLogin(Resource):
     def post(self):
@@ -92,10 +124,15 @@ class UsuarioCadastro(Resource):
             return response
 
 class UsuarioAtualiza(Resource):
-    def put(self, id):
-        user_id = verificar_jwt()
-        print(user_id)
-        user = session.query(Usuario).filter(Usuario.id == user_id).first()
+    def put(self):
+        id_usuario = verificar_jwt()
+        
+        if id_usuario['code'] != 200:
+            respose = jsonify({"message": id_usuario['message']})
+            respose.status_code = id_usuario['code']
+            return respose
+        
+        user = session.query(Usuario).filter(Usuario.id == id_usuario['message']).first()
 
         if user:
             data = request.get_json()

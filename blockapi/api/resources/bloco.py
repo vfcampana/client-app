@@ -24,8 +24,12 @@ class BlocoAtualiza(Resource):
 class BlocoCadastro(Resource):
     
     def post(self):
-        
         id_usuario = verificar_jwt()
+        
+        if id_usuario['code'] != 200:
+            respose = jsonify({"message": id_usuario['message']})
+            respose.status_code = id_usuario['code']
+            return respose
 
         data = request.get_json()
 
@@ -70,7 +74,7 @@ class BlocoCadastro(Resource):
                 data_criacao=data_criacao,
                 data_alteracao=data_alteracao,
                 estado=estado,
-                id_usuario=str(id_usuario),
+                id_usuario=str(id_usuario['message']),
                 status=status
             )
             session.add(bloco)

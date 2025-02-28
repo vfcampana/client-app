@@ -17,30 +17,37 @@ SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 def verificar_jwt():
     auth_header = request.headers.get('Authorization')
     
+    resposta = {
+        "code" : "",
+        "message": ""
+    }
+    
     if not auth_header:
-        response = jsonify({"message": "Token de autorização não fornecido"})
-        response.status_code = 401
-        return response
+        resposta['message'] = "Token de autorização não fornecido"
+        resposta['code'] = 401
     
     try:
         token = auth_header.split(" ")[1]
         
         try:
             decoded_token = jwt.decode(token, current_app.config['JWT_SECRET_KEY'], algorithms=["HS256"], options={"verify_sub": False})
-            id_usuario = decoded_token['sub']
-            return id_usuario
+            resposta['message'] = decoded_token['sub']
+            resposta['code'] = 200
         
         except Exception as e:
-            response = jsonify({"message": "Erro ao decodificar o token", "error": str(e)})
-            response.status_code = 401
-            return response
-        
+            resposta['message'] = "Erro ao decodificar o token"
+            resposta['code'] = 401
+            
     except jwt.ExpiredSignatureError:
-        response = jsonify({"message": "Token expirado"})
-        response.status_code = 401
-        return response
+        resposta['message'] =  "Token expirado"
+        resposta['code'] = 401
     
     except jwt.InvalidTokenError:
-        response = jsonify({"message": "Token inválido"})
-        response.status_code = 401
-        return response
+        resposta['message'] =  "Token inválido"
+        resposta['code'] = 401
+        
+    except:
+        resposta['message'] = "Token ausente"
+        resposta['code'] = 401
+        
+    return resposta
