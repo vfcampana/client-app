@@ -1,19 +1,16 @@
 from flask import Flask
 from models.extensions import engine
 from sqlalchemy.orm import sessionmaker
-from flask_login import LoginManager
+from flask_jwt_extended import JWTManager
 from flask_cors import CORS
 from api.views import api_bp
-from models.extensions import login_manager
+
 
 app = Flask(__name__)
 CORS(app)
 
-login_manager.init_app(app)
-
-login_manager.login_view = 'login' 
-
-app.secret_key = '1234'
+app.config['JWT_SECRET_KEY'] = 'supersecretkey' 
+jwt = JWTManager(app)
 
 Session = sessionmaker(bind=engine)
 session = Session()

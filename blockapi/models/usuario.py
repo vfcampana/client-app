@@ -1,10 +1,9 @@
 import datetime
 from sqlalchemy import Column, Integer, String, Date
 from models.base import Base
-from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
 
-class Usuario(Base, UserMixin):
+class Usuario(Base):
     __tablename__ = 'usuario'
     id = Column(Integer, primary_key=True, autoincrement=True)
     nome = Column(String, nullable=False)

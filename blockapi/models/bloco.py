@@ -1,5 +1,5 @@
 from sqlalchemy import Column, Integer, String, Float, Date, ForeignKey
-from extensions import Base
+from models.base import Base
 
 class Bloco(Base):
     __tablename__ = 'bloco'

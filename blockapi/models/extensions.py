@@ -1,25 +1,46 @@
+from dotenv import load_dotenv
+from flask import request, jsonify, current_app
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 import os
-from dotenv import load_dotenv
-from flask_login import LoginManager
-from models.usuario import Usuario
+import jwt
 
-# Carregar variáveis de ambiente
 load_dotenv()
 
-# Obter URL do banco de dados
 DATABASE_URL = os.getenv("DATABASE_URL")
 
-# Criar o engine do SQLAlchemy
 engine = create_engine(DATABASE_URL)
 
-# Criar uma factory para sessões do banco
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
-login_manager = LoginManager()
-login_manager.login_view = 'auth.login'
-
-@login_manager.user_loader
-def load_user(user_id):
-    return SessionLocal().query(Usuario).get(user_id)
+# Função para retornar o ID e verificar a Validade do Token JWT
+def verificar_jwt():
+    auth_header = request.headers.get('Authorization')
+    
+    if not auth_header:
+        response = jsonify({"message": "Token de autorização não fornecido"})
+        response.status_code = 401
+        return response
+    
+    try:
+        token = auth_header.split(" ")[1]
+        
+        try:
+            decoded_token = jwt.decode(token, current_app.config['JWT_SECRET_KEY'], algorithms=["HS256"], options={"verify_sub": False})
+            id_usuario = decoded_token['sub']
+            return id_usuario
+        
+        except Exception as e:
+            response = jsonify({"message": "Erro ao decodificar o token", "error": str(e)})
+            response.status_code = 401
+            return response
+        
+    except jwt.ExpiredSignatureError:
+        response = jsonify({"message": "Token expirado"})
+        response.status_code = 401
+        return response
+    
+    except jwt.InvalidTokenError:
+        response = jsonify({"message": "Token inválido"})
+        response.status_code = 401
+        return response

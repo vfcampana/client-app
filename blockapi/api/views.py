@@ -1,6 +1,6 @@
 from flask import Blueprint
 from flask_restful import Api
-from api.resources.usuario import UsuarioList, UsuarioGet, UsuarioAtualiza, UsuarioLogin, UsuarioCadastro
+from api.resources.usuario import UsuarioList, UsuarioGet, UsuarioAtualiza, UsuarioLogin, UsuarioCadastro, UsuarioProtected
 from api.resources.bloco import BlocoList, BlocoGet, BlocoAtualiza, BlocoCadastro
 from api.resources.anuncio import AnuncioList, AnuncioGet, AnuncioAtualiza, AnuncioCadastro
 from api.resources.lote import LoteList, LoteGet, LoteAtualiza, LoteCadastro
@@ -18,6 +18,7 @@ api.add_resource(UsuarioGet, '/usuario/<int:id>')
 api.add_resource(UsuarioAtualiza, '/usuario/<int:id>')
 api.add_resource(UsuarioLogin, '/login')
 api.add_resource(UsuarioCadastro, '/cadastro')
+api.add_resource(UsuarioProtected, '/protected')
 
 
 # Rotas de Blocos
