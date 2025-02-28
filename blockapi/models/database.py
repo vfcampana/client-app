@@ -1,5 +1,6 @@
 from sqlalchemy.orm import relationship
-from extensions import Base, engine
+from models.extensions import engine
+from models.base import Base
 from bloco import Bloco
 from usuario import Usuario
 from imagem import Imagens

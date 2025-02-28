@@ -4,9 +4,9 @@ from sqlalchemy.orm import sessionmaker
 from models.usuario import Usuario
 from models.extensions import engine
 from datetime import datetime
+from flask_login import login_user
 
 Session = sessionmaker(bind=engine)
-
 session = Session()
 
 class UsuarioGet(Resource):
@@ -19,7 +19,21 @@ class UsuarioList(Resource):
 
 class UsuarioLogin(Resource):
     def post(self):
-        return jsonify({'login': 'login'})
+        data = request.get_json()
+        email = data.get("email")
+        senha = data.get("senha")
+
+        user = session.query(Usuario).filter(Usuario.email == email).first()
+
+        if user and user.senha == senha:
+            login_user(user)
+            return jsonify({"message": "Login realizado com sucesso"})
+        else:
+            response = jsonify({"message": "Credenciais inválidas"})
+            response.status_code = 401
+            return response
+
+            
 
 class UsuarioCadastro(Resource):
     def post(self):
