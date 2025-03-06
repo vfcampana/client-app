@@ -16,6 +16,7 @@ def define_relationships():
     Bloco.usuario = relationship("Usuario", back_populates="blocos")
     Imagens.bloco = relationship("Bloco", back_populates="imagens")
     Anuncio.usuario = relationship("Usuario", back_populates="anuncios")
+    Lote.usuario = relationship("Usuario", back_populates="lotes")
     LoteBlocos.bloco = relationship("Bloco", back_populates="lote_blocos")
     LoteBlocos.lote = relationship("Lote", back_populates="lote_blocos")
     Chat.anuncio = relationship("Anuncio", back_populates="chats")

@@ -1,5 +1,5 @@
 from sqlalchemy import Column, Integer, ForeignKey
-from extensions import Base
+from models.base import Base
 
 class LoteBlocos(Base):
     __tablename__ = 'lote_blocos'
