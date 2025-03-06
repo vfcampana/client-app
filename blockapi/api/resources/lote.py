@@ -120,12 +120,6 @@ class LoteAtualiza(Resource):
             response = jsonify({"message": "Lote atualizado com sucesso"})
             response.status_code = 200
             return response
-        
-                
-
-                
-
-                
 
         session.commit()
         session.close()
