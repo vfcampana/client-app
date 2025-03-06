@@ -12,12 +12,46 @@ session = Session()
 
 class BlocoList(Resource):
     def get(self):
-        return jsonify({'bloco': 'bloco'})
+
+        id_usuario = verificar_jwt()
+
+        if id_usuario['code'] != 200:
+            response = jsonify({"message": id_usuario['message']})
+            response.status_code = id_usuario['code']
+            return response
+        
+        blocos = session.query(Bloco).filter(Bloco.id_usuario == id_usuario['message']).all()
+
+        lista_blocos = []
+
+        for bloco in blocos:
+            lista_blocos.append(bloco.to_dict())
+
+        response = jsonify(lista_blocos)
+        response.status_code = 200
+        return response
 
 class BlocoGet(Resource):
-    def get(self):
-        return jsonify({'bloco': 'bloco'})
+    def get(self, id):
 
+        id_usuario = verificar_jwt()
+
+        if id_usuario['code'] != 200:
+            response = jsonify({"message": id_usuario['message']})
+            response.status_code = id_usuario['code']
+            return response
+
+        bloco = session.query(Bloco).filter(Bloco.id == id).first()
+
+        if not bloco:
+            response = jsonify({"message": "Bloco não encontrado"})
+            response.status_code = 404
+            return response
+        
+        response = jsonify(bloco.to_dict())
+        response.status_code = 200
+        return response
+    
 class BlocoAtualiza(Resource):
     def put(self, id):
         id_usuario = verificar_jwt()

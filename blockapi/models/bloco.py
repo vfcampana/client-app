@@ -24,3 +24,28 @@ class Bloco(Base):
     estado = Column(String, nullable=False)
     id_usuario = Column(Integer, ForeignKey('usuario.id'))
     status = Column(String, nullable=False)
+
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "titulo": self.titulo,
+            "classificacao": self.classificacao,
+            "coloracao": self.coloracao,
+            "material": self.material,
+            "medida_bruta": self.medida_bruta,
+            "volume_bruto": self.volume_bruto,
+            "medida_liquida": self.medida_liquida,
+            "volume_liquido": self.volume_liquido,
+            "pedreira": self.pedreira,
+            "observacoes": self.observacoes,
+            "cep": self.cep,
+            "logradouro": self.logradouro,
+            "pais": self.pais,
+            "cidade": self.cidade,
+            "valor": self.valor,
+            "data_criacao": self.data_criacao,
+            "data_alteracao": self.data_alteracao,
+            "estado": self.estado,
+            "id_usuario": self.id_usuario,
+            "status": self.status
+        }
