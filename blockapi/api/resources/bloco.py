@@ -4,6 +4,7 @@ from sqlalchemy.orm import sessionmaker
 from models.bloco import Bloco
 from models.extensions import engine, verificar_jwt
 from datetime import datetime
+import requests
 
 Session = sessionmaker(bind=engine)
 
@@ -18,8 +19,51 @@ class BlocoGet(Resource):
         return jsonify({'bloco': 'bloco'})
 
 class BlocoAtualiza(Resource):
-    def put(self):
-        return jsonify({'bloco': 'bloco'})
+    def put(self, id):
+        id_usuario = verificar_jwt()
+
+        if id_usuario['code'] != 200:
+            response = jsonify({"message": id_usuario['message']})
+            response.status_code = id_usuario['code']
+            return response
+        
+        data = request.get_json()
+        
+        bloco = session.query(Bloco).filter(Bloco.id == id).first()
+
+        if not bloco:
+            response = jsonify({"message": "Bloco não encontrado"})
+            response.status_code = 404
+            return response
+
+        bloco.titulo = data.get("titulo", bloco.titulo)
+        bloco.classificacao = data.get("classificacao", bloco.classificacao)
+        bloco.coloracao = data.get("coloracao", bloco.coloracao)
+        bloco.material = data.get("material", bloco.material)
+        bloco.medida_bruta = data.get("medida_bruta", bloco.medida_bruta)
+        bloco.volume_bruto = data.get("volume_bruto", bloco.volume_bruto)
+        bloco.medida_liquida = data.get("medida_liquida", bloco.medida_liquida)
+        bloco.volume_liquido = data.get("volume_liquido", bloco.volume_liquido)
+        bloco.pedreira = data.get("pedreira", bloco.pedreira)
+        bloco.observacoes = data.get("observacoes", bloco.observacoes)
+        if data.get("cep"):
+            bloco.cep = data['cep']
+            res = requests.get(f"https://viacep.com.br/ws/{bloco.cep}/json/")
+            bloco.logradouro = str(res.json()['logradouro']) + ', ' + str(res.json()['bairro'])
+            bloco.cidade = res.json()['localidade']
+            bloco.estado = res.json()['uf']
+            bloco.pais = 'Brasil'
+
+        bloco.valor = data.get("valor", bloco.valor)
+        bloco.status = data.get("status", bloco.status)
+            
+        
+        session.commit()
+        session.close()
+
+        response = jsonify({"message": "Bloco atualizado com sucesso"})
+        response.status_code = 200
+        return response
 
 class BlocoCadastro(Resource):
     
@@ -44,13 +88,15 @@ class BlocoCadastro(Resource):
         pedreira = data.get("pedreira")
         observacoes = data.get("observacoes")
         cep = data.get("cep")
-        logradouro = data.get("logradouro")
-        pais = data.get("pais")
-        cidade = data.get("cidade")
+        if cep:
+            res = requests.get(f"https://viacep.com.br/ws/{cep}/json/")
+            logradouro = str(res.json()['logradouro']) + ', ' + str(res.json()['bairro'])
+            cidade = res.json()['localidade']
+            estado = res.json()['uf']
+            pais = 'Brasil'
         valor = data.get("valor")
         data_criacao = datetime.now()
         data_alteracao = datetime.now()
-        estado = data.get("estado")
         status = str(data.get("status"))
         
         if titulo and classificacao and coloracao and material and medida_bruta and volume_bruto and medida_liquida and volume_liquido and pedreira and observacoes and cep and logradouro and pais and cidade and valor and data_criacao and data_alteracao and estado and id_usuario and status:

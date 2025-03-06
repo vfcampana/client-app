@@ -82,11 +82,13 @@ class UsuarioCadastro(Resource):
         email = data.get("email")
         telefone = data.get("telefone")
         cep = data.get("cep")
-        logradouro = data.get("logradouro")
-        cidade = data.get("cidade")
-        pais = data.get("pais")
+        if cep:
+            res = requests.get(f"https://viacep.com.br/ws/{cep}/json/")
+            logradouro = str(res.json()['logradouro']) + ', ' + str(res.json()['bairro'])
+            cidade = res.json()['localidade']
+            estado = res.json()['uf']
+            pais = 'Brasil'
         senha = data.get("senha")
-        estado = data.get("estado")
 
         if nome and documento and email and telefone and cep and logradouro and cidade and pais and senha and estado:
             db_user = session.query(Usuario).filter(Usuario.email == email).first()
