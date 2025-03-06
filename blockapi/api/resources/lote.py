@@ -36,8 +36,36 @@ class LoteList(Resource):
         return response
 
 class LoteGet(Resource):
-    def get(self):
-        return jsonify({'lote': 'lote'})
+    def get(self, id):
+        
+        id_usuario = verificar_jwt()
+
+        if id_usuario['code'] != 200:
+            response = jsonify({"message": id_usuario['message']})
+            response.status_code = id_usuario['code']
+            return response
+
+        lote = session.query(Lote).filter(Lote.id == id).first()
+
+        if not lote:
+            response = jsonify({"message": "Lote não encontrado"})
+            response.status_code = 404
+            return response
+        
+        lote_json = lote.to_dict()
+
+        lote_json['blocos'] = []
+
+        lista_lote_blocos = session.query(LoteBlocos).filter(LoteBlocos.id_lote == id).all()
+        
+        for lote_bloco in lista_lote_blocos:
+            bloco = session.query(Bloco).filter(Bloco.id == lote_bloco.id_bloco).first()
+            if bloco:
+                lote_json['blocos'].append(bloco.to_dict())        
+        
+        response = jsonify(lote_json)
+        response.status_code = 200
+        return response
 
 class LoteAtualiza(Resource):
     def put(self):
