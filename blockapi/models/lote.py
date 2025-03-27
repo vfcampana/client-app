@@ -8,7 +8,7 @@ class Lote(Base):
     preco = Column(Float, nullable=False)
     observacoes = Column(String)
     id_usuario = Column(Integer, ForeignKey('usuario.id'))
-    status = Column(String, nullable=False)
+    status = Column(Integer, nullable=False)
 
 
     def to_dict(self):
