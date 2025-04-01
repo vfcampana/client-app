@@ -52,6 +52,29 @@ class BlocoGet(Resource):
         response.status_code = 200
         return response
     
+class BlocoDelete(Resource):
+    def delete(self, id):
+        id_usuario = verificar_jwt()
+        
+        if id_usuario['code'] != 200:
+            respose = jsonify({"message": id_usuario['message']})
+            respose.status_code = id_usuario['code']
+            return respose
+        
+        bloco = session.query(Bloco).filter(Bloco.id == id).filter(Bloco.id_usuario == id_usuario['message']).first()
+        
+        if not bloco:
+            response = jsonify({"message": "Bloco não encontrado"})
+            response.status_code = 404
+            return response
+        
+        session.delete(bloco)
+        session.commit()
+        
+        response = jsonify({"message": "Bloco deletado com sucesso"})
+        response.status_code = 200
+        return response
+    
 class BlocoAtualiza(Resource):
     def put(self, id):
         id_usuario = verificar_jwt()

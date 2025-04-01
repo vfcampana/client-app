@@ -7,8 +7,6 @@ from models.bloco import Bloco
 from models.lote import Lote
 from models.lote_bloco import LoteBlocos
 from models.extensions import engine, verificar_jwt
-from datetime import datetime
-import requests
 
 Session = sessionmaker(bind=engine)
 
@@ -64,6 +62,36 @@ class LoteGet(Resource):
                 lote_json['blocos'].append(bloco.to_dict())        
         
         response = jsonify(lote_json)
+        response.status_code = 200
+        return response
+
+class LoteDelete(Resource):
+    def delete(self, id):
+        id_usuario = verificar_jwt()
+        
+        if id_usuario['code'] != 200:
+            respose = jsonify({"message": id_usuario['message']})
+            respose.status_code = id_usuario['code']
+            return respose
+        
+        
+        lote = session.query(Lote).filter(Lote.id == id).filter(Lote.id_usuario == id_usuario['message']).first()
+        
+        if not lote:
+            response = jsonify({"message": "Lote não encontrado"})
+            response.status_code = 404
+            return response
+        
+        lote_blocos = session.query(LoteBlocos).filter(LoteBlocos.id_lote == id).all()
+        
+        for lote_bloco in lote_blocos:
+            session.delete(lote_bloco)
+            session.commit()
+        
+        session.delete(lote)
+        session.commit()
+        
+        response = jsonify({"message": "Lote deletado com sucesso"})
         response.status_code = 200
         return response
 

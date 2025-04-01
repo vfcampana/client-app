@@ -6,7 +6,6 @@ from datetime import datetime
 from models.anuncio import Anuncio
 from models.bloco import Bloco
 from models.lote import Lote
-import requests
 
 Session = sessionmaker(bind=engine)
 
@@ -35,9 +34,28 @@ class AnuncioGet(Resource):
         response.status_code = 200
         return response
 
-class AnuncioAtualiza(Resource):
-    def put(self):
-        return jsonify({'anuncio': 'anuncio'})
+class AnuncioDelete(Resource):
+    def delete(self, id):
+        id_usuario = verificar_jwt()
+        
+        if id_usuario['code'] != 200:
+            respose = jsonify({"message": id_usuario['message']})
+            respose.status_code = id_usuario['code']
+            return respose
+        
+        anuncio = session.query(Anuncio).filter(Anuncio.id == id).filter(Anuncio.id_usuario == id_usuario['message']).first()
+        
+        if not anuncio:
+            response = jsonify({"message": "Anuncio não encontrado"})
+            response.status_code = 404
+            return response
+        
+        session.delete(anuncio)
+        session.commit()
+        
+        response = jsonify({"message": "Anuncio deletado com sucesso"})
+        response.status_code = 200
+        return response
 
 class AnuncioCadastro(Resource):
     def post(self):

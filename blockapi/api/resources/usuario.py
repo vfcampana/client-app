@@ -56,6 +56,29 @@ class UsuarioGet(Resource):
             response.status_code = 404
             return response
 
+class UsuarioDelete(Resource):
+    def delete(self):
+        id_usuario = verificar_jwt()
+        
+        if id_usuario['code'] != 200:
+            respose = jsonify({"message": id_usuario['message']})
+            respose.status_code = id_usuario['code']
+            return respose
+        
+        usuario = session.query(Usuario).filter(Usuario.id == id_usuario['message']).first()
+        
+        if not usuario:
+            response = jsonify({"message": "Conta não encontrada"})
+            response.status_code = 404
+            return response
+        
+        session.delete(usuario)
+        session.commit()
+        
+        response = jsonify({"message": "Conta deletada com sucesso"})
+        response.status_code = 200
+        return response
+
 class UsuarioLogin(Resource):
     def post(self):
         data = request.get_json()
