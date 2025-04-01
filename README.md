@@ -55,6 +55,13 @@ Estão sujeitas a alterações conforme necessidade do projeto.
   GET /usuario/<int:id>
 ```
 
+#### Apaga Conta
+
+```http
+  DELETE /usuario
+```
+Obs: Apaga a conta do usuário ao enviar com o Bearer Token
+
 #### Cadastra Bloco
 
 ```http
@@ -88,6 +95,12 @@ Estão sujeitas a alterações conforme necessidade do projeto.
   GET /bloco
 ```
 Obs: Aqui são puxados os blocos do usuário a partir do ID dele que veio do token JWT
+
+#### Apaga Bloco
+
+```http
+  DELETE /bloco/<int:id>
+```
 
 #### Cadastra Lote
 
@@ -129,6 +142,12 @@ Obs: Aqui são puxados os blocos do usuário a partir do ID dele que veio do tok
 ```
 Obs: Aqui são puxados os lotes do usuário a partir do ID dele que veio do token JWT
 
+#### Apaga Lote
+
+```http
+  DELETE /lote/<int:id>
+```
+
 #### Cadastro Anuncio
 
 ```http
@@ -160,6 +179,12 @@ Obs: Aqui são puxados os lotes do usuário a partir do ID dele que veio do toke
 
 ```http
   GET /anuncio
+```
+
+#### Apaga Anuncio
+
+```http
+  DELETE /anuncio/<int:id>
 ```
 
 #### Lista Anuncios do Usuário
