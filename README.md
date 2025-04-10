@@ -1,5 +1,5 @@
 
-# Título do Projeto
+# StoneEye
 
 Este projeto visa permitir a rastreabilidade de um bloco de rocha ornamental, desde o momento de sua lavra
 até seu processamento e comercialização. Com esse objetivo, visa-se a construção de um sistema (no formato de aplicação web).
