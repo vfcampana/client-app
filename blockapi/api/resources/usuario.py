@@ -137,8 +137,13 @@ class UsuarioCadastro(Resource):
                 session.commit()
                 session.close()
 
-                response = jsonify({"message": "Usuário cadastrado com sucesso"})
+                user = session.query(Usuario).filter(Usuario.email == email).first()
+
+                access_token = create_access_token(identity=user.id)
+                response =  jsonify(access_token=access_token)
+                response.status_code = 200
                 return response
+            
             else:
                 response = jsonify({"message": "Usuário já cadastrado"})
                 response.status_code = 409
