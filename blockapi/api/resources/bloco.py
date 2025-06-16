@@ -10,6 +10,25 @@ Session = sessionmaker(bind=engine)
 
 session = Session()
 
+
+class BlocoPublic(Resource):
+    def get(self):
+        """Endpoint público para mostrar todos os blocos na Home"""
+        session = Session()
+        try:
+            blocos = session.query(Bloco).filter(Bloco.status == "1").all()
+            
+            lista_blocos = []
+            for bloco in blocos:
+                lista_blocos.append(bloco.to_dict())
+            
+            return lista_blocos, 200 
+            
+        except Exception as e:
+            return {"message": "Erro ao buscar blocos", "error": str(e)}, 500
+        finally:
+            session.close()
+
 class BlocoList(Resource):
     def get(self):
 

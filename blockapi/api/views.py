@@ -1,7 +1,7 @@
 from flask import Blueprint
 from flask_restful import Api
 from api.resources.usuario import UsuarioGet, UsuarioAtualiza, UsuarioDelete, UsuarioLogin, UsuarioCadastro, UsuarioProtected
-from api.resources.bloco import BlocoList, BlocoGet, BlocoDelete, BlocoAtualiza, BlocoCadastro
+from api.resources.bloco import BlocoPublic, BlocoList, BlocoGet, BlocoDelete, BlocoAtualiza, BlocoCadastro
 from api.resources.anuncio import AnuncioList, AnuncioGet, AnuncioDelete, AnuncioCadastro
 from api.resources.lote import LoteList, LoteGet, LoteDelete, LoteAtualiza, LoteCadastro
 from api.resources.chat import ChatList, ChatGet, EnviarMensagem
@@ -23,7 +23,8 @@ api.add_resource(UsuarioProtected, '/protected')
 
 # Rotas de Blocos
 
-api.add_resource(BlocoList, '/bloco')
+api.add_resource(BlocoPublic, '/bloco')
+api.add_resource(BlocoList, '/blocos')
 api.add_resource(BlocoGet, '/bloco/<int:id>')
 api.add_resource(BlocoDelete, '/bloco/<int:id>')
 api.add_resource(BlocoAtualiza, '/bloco/<int:id>')

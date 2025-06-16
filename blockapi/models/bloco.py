@@ -1,5 +1,6 @@
 from sqlalchemy import Column, Integer, String, Float, Date, ForeignKey
 from models.base import Base
+from datetime import datetime, date
 
 class Bloco(Base):
     __tablename__ = 'bloco'
@@ -24,28 +25,16 @@ class Bloco(Base):
     estado = Column(String, nullable=False)
     id_usuario = Column(Integer, ForeignKey('usuario.id'))
     status = Column(String, nullable=False)
+    imagem = Column(String, nullable=False)
 
     def to_dict(self):
-        return {
-            "id": self.id,
-            "titulo": self.titulo,
-            "classificacao": self.classificacao,
-            "coloracao": self.coloracao,
-            "material": self.material,
-            "medida_bruta": self.medida_bruta,
-            "volume_bruto": self.volume_bruto,
-            "medida_liquida": self.medida_liquida,
-            "volume_liquido": self.volume_liquido,
-            "pedreira": self.pedreira,
-            "observacoes": self.observacoes,
-            "cep": self.cep,
-            "logradouro": self.logradouro,
-            "pais": self.pais,
-            "cidade": self.cidade,
-            "valor": self.valor,
-            "data_criacao": self.data_criacao,
-            "data_alteracao": self.data_alteracao,
-            "estado": self.estado,
-            "id_usuario": self.id_usuario,
-            "status": self.status
-        }
+        result = {}
+        
+        for column in self.__table__.columns:
+            value = getattr(self, column.name)            
+            if isinstance(value, (datetime, date)):
+                result[column.name] = value.isoformat() if value else None
+            else:
+                result[column.name] = value
+                
+        return result
