@@ -103,7 +103,7 @@ class UsuarioCadastro(Resource):
                     session.commit()
                     session.refresh(user)
 
-                    access_token = create_access_token(identity=user.id)
+                    access_token = create_access_token(identity=str(user.id))
                     
                     response_data = {
                         "message": "Usuário cadastrado com sucesso",
@@ -147,7 +147,7 @@ class UsuarioLogin(Resource):
             user = session.query(Usuario).filter(Usuario.email == email).first()
 
             if user and user.verificar_senha(str(senha)):
-                access_token = create_access_token(identity=user.id)
+                access_token = create_access_token(identity=str(user.id))
                 return {
                     "access_token": access_token,
                     "user": {

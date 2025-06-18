@@ -33,14 +33,12 @@ class BlocoList(Resource):
     def get(self):
 
         id_usuario = verificar_jwt()
-
-        if id_usuario['code'] != 200:
-            response = jsonify({"message": id_usuario['message']})
-            response.status_code = id_usuario['code']
+        if id_usuario['code'] != 200 or not id_usuario.get('message'):
+            response = jsonify({"message": id_usuario.get('message', 'Token inválido ou não fornecido')})
+            response.status_code = id_usuario['code'] # type: ignore
             return response
         
         blocos = session.query(Bloco).filter(Bloco.id_usuario == id_usuario['message']).all()
-
         lista_blocos = []
 
         for bloco in blocos:
@@ -57,7 +55,7 @@ class BlocoGet(Resource):
 
         if id_usuario['code'] != 200:
             response = jsonify({"message": id_usuario['message']})
-            response.status_code = id_usuario['code']
+            response.status_code = id_usuario['code'] # type: ignore
             return response
 
         bloco = session.query(Bloco).filter(Bloco.id == id).first()
@@ -77,7 +75,7 @@ class BlocoDelete(Resource):
         
         if id_usuario['code'] != 200:
             respose = jsonify({"message": id_usuario['message']})
-            respose.status_code = id_usuario['code']
+            respose.status_code = id_usuario['code'] # type: ignore
             return respose
         
         bloco = session.query(Bloco).filter(Bloco.id == id).filter(Bloco.id_usuario == id_usuario['message']).first()

@@ -13,9 +13,11 @@ import LocationOnIcon from "@mui/icons-material/LocationOn";
 import FitnessCenterIcon from "@mui/icons-material/FitnessCenter";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import { useTheme } from "@mui/material/styles";
+import { useNavigate } from "react-router-dom";
 
-export default function BlockCard({ block }) {
+export default function BlockCard({block, onView }) {
     const theme = useTheme();
+    const navigate = useNavigate();
     
     return (
         <Card
@@ -91,6 +93,7 @@ export default function BlockCard({ block }) {
                             background: theme.palette.primary.main,
                         },
                     }}
+                    onClick={() => navigate(`/blocks/${block.id}`)}
                 >
                     Ver Detalhes
                 </Button>

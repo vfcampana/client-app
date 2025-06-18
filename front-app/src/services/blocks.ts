@@ -19,12 +19,22 @@ export const createBlock = async (block : Block) => {
 export const fetchBlocks = async () => {
     const authToken = await localStorage.getItem('authToken');
 
-    const response = await axios.get(`${REACT_APP_API_URL}/bloco`,
+    const response = await axios.get(`${REACT_APP_API_URL}/blocos`,
     { headers : {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${authToken}`,
     }})
-    
+    console.log('Blocks fetched:', response.data);
+    return response.data
+}
+
+export const fetchBlocksByUser = async (userId : number) => {
+    const authToken = await localStorage.getItem('authToken');
+    const response = await axios.get(`${REACT_APP_API_URL}/blocos`,
+    { headers : {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${authToken}`,
+    }})
     return response.data
 }
 

@@ -59,6 +59,7 @@ export default function Navbar() {
 
     const handleMenuClick = (route) => {
         console.log(`Navegando para: ${route}`);
+        navigate(route);
         setMobileOpen(false);
     };
 
@@ -67,7 +68,7 @@ export default function Navbar() {
             <AppBar
                 position="sticky"
                 sx={{
-                    background: theme.palette.primary.main,
+                    background: theme.palette.primary.dark,
                     boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
                 }}
             >
@@ -160,7 +161,7 @@ export default function Navbar() {
                     '& .MuiDrawer-paper': {
                         boxSizing: 'border-box',
                         width: 250,
-                        backgroundColor: theme.palette.primary.main,
+                        backgroundColor: theme.palette.primary.dark,
                     },
                 }}
             >
@@ -175,7 +176,7 @@ export default function Navbar() {
                             variant="h6"
                             sx={{
                                 fontWeight: 'bold',
-                                background: theme.palette.primary.main,
+                                background: theme.palette.primary.dark,
                                 WebkitBackgroundClip: 'text',
                                 WebkitTextFillColor: 'transparent',
                             }}

@@ -10,20 +10,28 @@ import {
   Stack,
   CircularProgress,
 } from '@mui/material';
-import {
-  Business as BusinessIcon,
-  LocationOn as LocationIcon,
-  Star as StarIcon,
-  People as PeopleIcon,
-  Inventory as InventoryIcon,
-  ArrowForward as ArrowForwardIcon,
-  AutoAwesome as SparklesIcon,
-} from '@mui/icons-material';
-import BlockCard from '../components/BlockCard';
+import BlockCard from '../components/blocks/BlockCard';
 import { useBlocks } from '../hooks/useBlocks';
+import { useState } from 'react';
+import { Block } from '../types/Blocks';
+import BlockModal from '../components/blocks/BlockDetails';
+import SearchBar from '../components/SearchBar';
 
 export default function Home() {
-  const { blocks, loading, error, refetch } = useBlocks();
+  const { blocks, loading, error} = useBlocks();
+  const [chosenBlock, setChosenBlock] = useState<Block>();
+  const [open, setOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
+
+  const viewBlock = (block: Block) => {
+    setChosenBlock(block);
+    setOpen(true);
+    console.log('Visualizando Bloco: ', block);
+  };
+
+  const filteredBlocks = blocks?.filter((blocks: Block) =>
+    blocks.titulo.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   if (loading) {
     return (
@@ -34,9 +42,11 @@ export default function Home() {
   }
 
   return (
+    
     <Box sx={{ backgroundColor: '#f5f5f5', minHeight: '100vh' }}>
       <Container maxWidth="lg" sx={{ py: 6 }}>
-        
+          <SearchBar searchTerm={searchTerm} setSearchTerm={setSearchTerm} showRegisterButton={false}/>
+
         {error && (
           <Box sx={{ mb: 4, textAlign: 'center' }}>
             <Typography variant="h6" color="error">
@@ -47,18 +57,14 @@ export default function Home() {
 
         {/* Blocos Disponíveis */}
         <Box sx={{ mb: 8 }}>
-          <Box textAlign="center" sx={{ mb: 6 }}>
-            <Typography variant="h3" component="h2" gutterBottom fontWeight="bold" color="text.primary">
-              Blocos Disponíveis
-            </Typography>
-          </Box>
           <Grid container spacing={4}>
-            {blocks.map((block) => (
+            {filteredBlocks.map((block) => (
               <Grid item xs={12} sm={6} md={4} key={block.id}>
-                <BlockCard block={block} />
+                <BlockCard block={block} onView={viewBlock} />
               </Grid>
             ))}
           </Grid>
+          {chosenBlock && <BlockModal open={open} setOpen={setOpen} chosenBlock={chosenBlock} />}
         </Box>
       </Container>
     </Box>

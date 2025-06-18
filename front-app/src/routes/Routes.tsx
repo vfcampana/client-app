@@ -9,6 +9,7 @@ import Chat from '../pages/Chat';
 import { useSelector } from 'react-redux';
 import { RootState } from '../redux/root-reducer';
 import Lotes from '../pages/Lotes';
+import BlockDetailsRoute from './BlockDetailsRoute';
 
 interface props {
     signed : boolean,
@@ -31,10 +32,11 @@ const AppRoutes: React.FC = () => {
     <Route path="/" element={<Public signed={signed} Item={SignIn} />} />
       <Route path="/SignUp" element={<Public signed={signed} Item={SignUp} />} />
       <Route path="/Home" element={<Private signed={signed} Item={Home} />} />
-      <Route path="/Blocks" element={<Private signed={signed} Item={Blocks} />} />
+      <Route path="/Blocks" element={<Private signed={signed} Item={Blocks} />} /> {/*Esse tem recursos legais para usar em algo como "MEUS BLOCOS"*/}
       <Route path="/Market" element={<Private signed={signed} Item={Market} />} />
-      <Route path="/Chat" element={<Private signed={signed} Item={Chat} />} />
-      <Route path="/Lotes" element={<Private signed={signed} Item={Lotes} />} />
+      <Route path="/Chat" element={<Private signed={signed} Item={Chat} />} />{/* nao serve */}
+      <Route path="/Lotes" element={<Private signed={signed} Item={Lotes} />} /> {/* nao serve */}
+      <Route path="/blocks/:id" element={<BlockDetailsRoute />} />
     </Routes>
   );
 };

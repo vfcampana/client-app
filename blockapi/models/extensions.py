@@ -16,38 +16,47 @@ SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 # Função para retornar o ID e verificar a Validade do Token JWT
 def verificar_jwt():
     auth_header = request.headers.get('Authorization')
-    
     resposta = {
-        "code" : "",
+        "code": "",
         "message": ""
     }
-    
+
     if not auth_header:
         resposta['message'] = "Token de autorização não fornecido"
         resposta['code'] = 401
-    
+        return resposta
+
     try:
-        token = auth_header.split(" ")[1]
-        
-        try:
-            decoded_token = jwt.decode(token, current_app.config['JWT_SECRET_KEY'], algorithms=["HS256"], options={"verify_sub": False})
-            resposta['message'] = decoded_token['sub']
-            resposta['code'] = 200
-        
-        except Exception as e:
-            resposta['message'] = "Erro ao decodificar o token"
+        parts = auth_header.split()
+        if len(parts) != 2 or parts[0].lower() != 'bearer':
+            resposta['message'] = "Formato do header Authorization inválido"
             resposta['code'] = 401
-            
-    except jwt.ExpiredSignatureError:
-        resposta['message'] =  "Token expirado"
+            return resposta
+
+        token = parts[1]
+        try:
+            decoded_token = jwt.decode(
+                token,
+                current_app.config['JWT_SECRET_KEY'],
+                algorithms=["HS256"]
+            )
+            resposta['message'] = decoded_token.get('sub')
+            resposta['code'] = 200
+            return resposta
+
+        except jwt.ExpiredSignatureError:
+            resposta['message'] = "Token expirado"
+            resposta['code'] = 401
+            return resposta
+
+        except jwt.InvalidTokenError as e:
+            print(f"Erro JWT: {e}")
+            resposta['message'] = "Token inválido"
+            resposta['code'] = 401
+            return resposta
+
+    except Exception as e:
+        resposta['message'] = f"Erro ao processar o token: {str(e)}"
         resposta['code'] = 401
+        return resposta
     
-    except jwt.InvalidTokenError:
-        resposta['message'] =  "Token inválido"
-        resposta['code'] = 401
-        
-    except:
-        resposta['message'] = "Token ausente"
-        resposta['code'] = 401
-        
-    return resposta

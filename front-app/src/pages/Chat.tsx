@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { Box, Typography, Paper, List, ListItem, ListItemText, TextField, Button, Divider, ListItemButton } from '@mui/material';
-import TopBar from '../components/topbar/TopBar';
 
 const Chat = () => {
   const [message, setMessage] = useState('');
@@ -14,7 +13,6 @@ const Chat = () => {
   return (
     <Box display="flex" flexDirection="column" height="100vh">
       {/* TopBar com título "Chat" */}
-      <TopBar title="CHAT" />
 
       {/* Área principal com barra lateral e área de chat */}
       <Box display="flex" flexGrow={1}>

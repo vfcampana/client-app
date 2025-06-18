@@ -19,12 +19,15 @@ const style = {
   p: 4,
 };
 
-export default function BlockModal() {
-  const [open, setOpen] = useState(false);
+interface BlockModalProps {
+  open: boolean;
+  onClose: () => void;
+}
+
+export default function BlockModal({ open, onClose }: BlockModalProps) {
   const [error, setError] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
-  const handleOpen = () => setOpen(true);
-  const handleClose = () => setOpen(false);
+
   const initialState: Block = {
   id: 0,
   titulo: '', 
@@ -46,6 +49,7 @@ export default function BlockModal() {
   estado: '',
   data_criacao: '',
   data_alteracao: '',
+  imagem: '',
   id_usuario: 0,
 };
   
@@ -99,11 +103,14 @@ export default function BlockModal() {
 
   return (
     <div>
-      <StyledButton sx={{ minWidth: 100 }} onClick={handleOpen}>CADASTRAR</StyledButton>
+      {/*
+        A abertura do modal externamente deve ser feito assim:
+        <StyledButton onClick={() => setIsModalOpen(true)}>CADASTRAR</StyledButton>
+        <BlockModal open={isModalOpen} onClose={() => setIsModalOpen(false)} />
+      */}
       <Modal
         open={open}
-        onClose={handleClose}
-        aria-labelledby="modal-modal-title"
+        onClose={onClose}
       >
         <Box sx={style}>
             <Typography id="modal-modal-title" align='center' variant="h6" component="h2">

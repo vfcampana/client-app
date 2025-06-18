@@ -1,4 +1,5 @@
 export interface Block {
+  imagem: string;
   id: number;
   titulo: string;
   classificacao: string;
