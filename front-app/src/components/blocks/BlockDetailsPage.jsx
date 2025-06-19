@@ -1,4 +1,3 @@
-import React from "react";
 import {
   Box,
   Typography,
@@ -10,6 +9,7 @@ import {
   Chip,
   IconButton,
   Container,
+  CircularProgress,
 } from "@mui/material";
 import {
   ArrowBack,
@@ -21,18 +21,19 @@ import {
   Star,
   Business,
   LocationOn,
-  CalendarToday,
-  Info,
+
 } from "@mui/icons-material";
 import { useTheme } from "@mui/material/styles";
 
-export default function BlockDetailsPage({ block, onBack, onNegotiate, onInterest }) {
+export default function BlockDetailsPage({ 
+  block, 
+  onBack, 
+  onNegotiate, 
+  onInterest, 
+  isFavorite = false, 
+  favoriteLoading = false 
+}) {
   const theme = useTheme();
-  const [isFavorite, setIsFavorite] = React.useState(false);
-
-  const handleFavoriteToggle = () => {
-    setIsFavorite(!isFavorite);
-  };
 
   const formatDate = (dateString) => {
     if (!dateString) return "N/A";
@@ -51,40 +52,27 @@ export default function BlockDetailsPage({ block, onBack, onNegotiate, onInteres
 
   return (
     <Container maxWidth="md" sx={{ py: 2 }}>
-      {/* Header with navigation */}
+      {/* Cabeçalho com navegação */}
       <Box sx={{ display: "flex", alignItems: "center", mb: 2, gap: 2 }}>
         <IconButton onClick={onBack} sx={{ color: "white", backgroundColor: theme.palette.primary.main }}>
           <ArrowBack />
         </IconButton>
-        <Typography variant="h6" sx={{ flexGrow: 1, color: "white" }}>
-          {block.titulo}
-        </Typography>
-        <IconButton onClick={handleFavoriteToggle} sx={{ color: "white" }}>
-          {isFavorite ? <Favorite /> : <FavoriteBorder />}
-        </IconButton>
-        <IconButton sx={{ color: "white" }}>
-          <Share />
-        </IconButton>
-        <IconButton sx={{ color: "white" }}>
-          <Edit />
-        </IconButton>
       </Box>
 
-      {/* Image Card */}
+      {/* Cartão de imagem */}
       <Card sx={{ mb: 3, overflow: "hidden" }}>
         <Box sx={{ position: "relative" }}>
           <CardMedia
             component="img"
             height="300"
-            image={block.imagem || "https://via.placeholder.com/400x300/8B4513/FFFFFF?text=Stone+Block"}
+            image={block.imagem || "assets/stone.png"} 
             alt={block.titulo}
             sx={{ objectFit: "cover" }}
           />
-          {/* Navigation arrows for image gallery could be added here */}
         </Box>
       </Card>
 
-      {/* Price */}
+      {/* Preço */}
       <Typography
         variant="h4"
         sx={{
@@ -96,7 +84,7 @@ export default function BlockDetailsPage({ block, onBack, onNegotiate, onInteres
         {formatCurrency(block.valor)}
       </Typography>
 
-      {/* Title and Basic Info */}
+      {/* Título e informações básicas */}
       <Typography variant="h6" sx={{ mb: 1, fontWeight: "bold" }}>
         {block.titulo.toUpperCase()}
       </Typography>
@@ -105,7 +93,7 @@ export default function BlockDetailsPage({ block, onBack, onNegotiate, onInteres
         Publicado em {formatDate(block.data_criacao)}
       </Typography>
 
-      {/* Description Section */}
+      {/* Seção de descrição */}
       <Box sx={{ mb: 3 }}>
         <Typography variant="h6" sx={{ mb: 2, fontWeight: "bold" }}>
           Descrição
@@ -181,7 +169,7 @@ export default function BlockDetailsPage({ block, onBack, onNegotiate, onInteres
 
       <Divider sx={{ my: 3 }} />
 
-      {/* Location Section */}
+      {/* Seção de localização */}
       <Box sx={{ mb: 3 }}>
         <Typography variant="h6" sx={{ mb: 2, fontWeight: "bold" }}>
           Localização
@@ -198,7 +186,7 @@ export default function BlockDetailsPage({ block, onBack, onNegotiate, onInteres
 
       <Divider sx={{ my: 3 }} />
 
-      {/* Advertiser Section */}
+      {/* Seção do anunciante */}
       <Box sx={{ mb: 4 }}>
         <Typography variant="h6" sx={{ mb: 2, fontWeight: "bold" }}>
           Anunciante
@@ -216,7 +204,7 @@ export default function BlockDetailsPage({ block, onBack, onNegotiate, onInteres
         </Box>
       </Box>
 
-      {/* Action Buttons */}
+      {/* Botões de ação */}
       <Stack spacing={2} sx={{ mb: 4 }}>
         <Button
           variant="contained"
@@ -238,13 +226,15 @@ export default function BlockDetailsPage({ block, onBack, onNegotiate, onInteres
         </Button>
 
         <Button
-          variant="outlined"
+          variant={isFavorite ? "contained" : "outlined"}
           size="large"
-          startIcon={<Star />}
+          startIcon={favoriteLoading ? <CircularProgress size={20} /> : <Star />}
           onClick={() => onInterest && onInterest(block)}
+          disabled={favoriteLoading}
           sx={{
             borderColor: theme.palette.primary.main,
-            color: theme.palette.primary.main,
+            color: isFavorite ? "white" : theme.palette.primary.main,
+            backgroundColor: isFavorite ? theme.palette.primary.main : "transparent",
             py: 1.5,
             fontSize: "1rem",
             fontWeight: "bold",
@@ -254,11 +244,11 @@ export default function BlockDetailsPage({ block, onBack, onNegotiate, onInteres
             },
           }}
         >
-          INTERESSE
+          {isFavorite ? "FAVORITADO" : "INTERESSE"}
         </Button>
       </Stack>
 
-      {/* Status Chip */}
+      {/* Chip de status */}
       {block.status && (
         <Box sx={{ display: "flex", justifyContent: "center", mb: 2 }}>
           <Chip

@@ -39,9 +39,9 @@ class AnuncioDelete(Resource):
         id_usuario = verificar_jwt()
         
         if id_usuario['code'] != 200:
-            respose = jsonify({"message": id_usuario['message']})
-            respose.status_code = id_usuario['code']
-            return respose
+            response = jsonify({"message": id_usuario['message']})
+            response.status_code = int(id_usuario['code'])
+            return response
         
         anuncio = session.query(Anuncio).filter(Anuncio.id == id).filter(Anuncio.id_usuario == id_usuario['message']).first()
         

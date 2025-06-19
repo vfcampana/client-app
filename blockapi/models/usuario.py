@@ -2,6 +2,7 @@ import datetime
 from sqlalchemy import Column, Integer, String, Date
 from models.base import Base
 from werkzeug.security import generate_password_hash, check_password_hash
+from sqlalchemy.orm import relationship
 
 class Usuario(Base):
     __tablename__ = 'usuario'
@@ -17,7 +18,7 @@ class Usuario(Base):
     senha = Column(String, nullable=False)
     data_registro = Column(Date, nullable=False, default=datetime.datetime.now())
     estado = Column(String, nullable=False)
-
+    favoritos = relationship("Favorito", back_populates="usuario")
     def set_senha(self, senha):
         self.senha = generate_password_hash(senha)
 

@@ -5,6 +5,7 @@ from api.resources.bloco import BlocoPublic, BlocoList, BlocoGet, BlocoDelete, B
 from api.resources.anuncio import AnuncioList, AnuncioGet, AnuncioDelete, AnuncioCadastro
 from api.resources.lote import LoteList, LoteGet, LoteDelete, LoteAtualiza, LoteCadastro
 from api.resources.chat import ChatList, ChatGet, EnviarMensagem
+from api.resources.favorito import FavoritoPost, FavoritoGet, FavoritoDelete
 
 api_bp = Blueprint('api', __name__)
 
@@ -29,6 +30,11 @@ api.add_resource(BlocoGet, '/bloco/<int:id>')
 api.add_resource(BlocoDelete, '/bloco/<int:id>')
 api.add_resource(BlocoAtualiza, '/bloco/<int:id>')
 api.add_resource(BlocoCadastro, '/bloco')
+
+# Rotas de Favoritos
+api.add_resource(FavoritoPost, '/favorito')
+api.add_resource(FavoritoGet, '/favorito')
+api.add_resource(FavoritoDelete, '/favorito/<int:id>')
 
 
 # Rotas de Anuncios

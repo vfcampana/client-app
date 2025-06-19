@@ -1,6 +1,7 @@
 from sqlalchemy import Column, Integer, String, Float, Date, ForeignKey
 from models.base import Base
 from datetime import datetime, date
+from sqlalchemy.orm import relationship
 
 class Bloco(Base):
     __tablename__ = 'bloco'
@@ -26,6 +27,7 @@ class Bloco(Base):
     id_usuario = Column(Integer, ForeignKey('usuario.id'))
     status = Column(String, nullable=False)
     imagem = Column(String, nullable=False)
+    favoritos = relationship("Favorito", back_populates="bloco")
 
     def to_dict(self):
         result = {}

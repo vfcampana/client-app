@@ -17,7 +17,7 @@ import {
 import {
     Menu as MenuIcon,
     Home as HomeIcon,
-    ShoppingCart as ShoppingCartIcon,
+    Star as StarIcon,
     ViewInAr as ViewInArIcon,
     Business as BusinessIcon,
     Chat as ChatIcon,
@@ -45,12 +45,11 @@ export default function Navbar() {
 
     const menuItems = [
         { icon: <HomeIcon />, label: 'Home', route: '/home' },
-        { icon: <ShoppingCartIcon />, label: 'Comércio', route: '/market' },
+        { icon: <StarIcon />, label: 'Favoritos', route: '/favorites' },
         { icon: <ViewInArIcon />, label: 'Meus Blocos', route: '/blocks' },
         { icon: <BusinessIcon />, label: 'Meus Lotes', route: '/lotes' },
         { icon: <ChatIcon />, label: 'Chat', route: '/chat' },
-        { icon : <LogOutIcon />, label: 'Sair', action: handleExit },
-        
+        { icon: <LogOutIcon />, label: 'Sair', action: handleExit },
     ];
 
     const handleDrawerToggle = () => {

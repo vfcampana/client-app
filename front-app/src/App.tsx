@@ -7,6 +7,7 @@ import Navbar from './components/Navbar';
 import { BrowserRouter } from 'react-router-dom';
 import { RootState } from './redux/root-reducer';
 import { useSelector } from 'react-redux';
+import ErrorBoundary from './components/ErrorBoundary';
 
 const theme = createTheme({
   palette: {
@@ -37,14 +38,16 @@ const App: React.FC = () => {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <BrowserRouter> {/* ✅ Envolva aqui */}
-        <Box className="App" minHeight="100vh" bgcolor="background.default">
-          {signed && <Navbar />}
-          <Box component="main" width="100%">
-            <AppRoutes />
+      <ErrorBoundary>
+        <BrowserRouter>
+          <Box className="App" minHeight="100vh" bgcolor="background.default">
+            {signed && <Navbar />}
+            <Box component="main" width="100%">
+              <AppRoutes />
+            </Box>
           </Box>
-        </Box>
-      </BrowserRouter>
+        </BrowserRouter>
+      </ErrorBoundary>
     </ThemeProvider>
   );
 };
