@@ -10,7 +10,7 @@ class Lote(Base):
     id_usuario = Column(Integer, ForeignKey('usuario.id'))
     status = Column(Integer, nullable=False)
 
-
+    
     def to_dict(self):
         return {
             'id': self.id,

@@ -5,6 +5,7 @@ from models.bloco import Bloco
 from models.extensions import engine, verificar_jwt
 from datetime import datetime
 import requests
+import os
 
 Session = sessionmaker(bind=engine)
 
@@ -31,7 +32,7 @@ class BlocoPublic(Resource):
 
 class BlocoList(Resource):
     def get(self):
-
+        print("entrou na lista de blocos")
         id_usuario = verificar_jwt()
         if id_usuario['code'] != 200 or not id_usuario.get('message'):
             response = jsonify({"message": id_usuario.get('message', 'Token inválido ou não fornecido')})
@@ -50,7 +51,7 @@ class BlocoList(Resource):
 
 class BlocoGet(Resource):
     def get(self, id):
-
+        print("entrou na busca de bloco com id:", id)
         id_usuario = verificar_jwt()
 
         if id_usuario['code'] != 200:
@@ -61,10 +62,12 @@ class BlocoGet(Resource):
         bloco = session.query(Bloco).filter(Bloco.id == id).first()
 
         if not bloco:
+            print("bloco não encontrado")
             response = jsonify({"message": "Bloco não encontrado"})
             response.status_code = 404
             return response
         
+        print("bloco encontrado:", bloco.to_dict())
         response = jsonify(bloco.to_dict())
         response.status_code = 200
         return response
@@ -95,14 +98,24 @@ class BlocoDelete(Resource):
 class BlocoAtualiza(Resource):
     def put(self, id):
         id_usuario = verificar_jwt()
-
+        print("entrou")
         if id_usuario['code'] != 200:
             response = jsonify({"message": id_usuario['message']})
             response.status_code = id_usuario['code']
             return response
         
-        data = request.get_json()
+        data = request.form.to_dict()
+        if 'imagem' in request.files:
+            file = request.files['imagem']
+            if file and file.filename != '' and file.filename is not None:
+                # Process the uploaded file here
+                # You might want to save it to a specific directory
+                # and store the file path in data['file_path']
+                data['file_path'] = file.filename  # Adjust this based on your file handling logic
+                file_path = os.path.join('imagens', file.filename)
+                file.save(file_path) 
         
+        print("dados recebidos:", data)
         bloco = session.query(Bloco).filter(Bloco.id == id).first()
 
         if not bloco:
@@ -130,6 +143,7 @@ class BlocoAtualiza(Resource):
 
         bloco.valor = data.get("valor", bloco.valor)
         bloco.status = data.get("status", bloco.status)
+        bloco.imagem = data.get("file_path", bloco.imagem)
             
         
         session.commit()
@@ -140,16 +154,31 @@ class BlocoAtualiza(Resource):
         return response
 
 class BlocoCadastro(Resource):
-    
     def post(self):
         id_usuario = verificar_jwt()
         
         if id_usuario['code'] != 200:
-            respose = jsonify({"message": id_usuario['message']})
-            respose.status_code = id_usuario['code']
-            return respose
+            response = jsonify({"message": id_usuario['message']})
+            response.status_code = id_usuario['code']
+            return response
 
-        data = request.get_json()
+        # Check if request has form data (multipart/form-data) or JSON
+        if request.content_type and 'multipart/form-data' in request.content_type:
+            # Handle FormData (with file upload)
+            data = request.form.to_dict()
+            
+            # Handle file upload
+            file_path = None
+            if 'imagem' in request.files:
+                file = request.files['imagem']
+                if file and file.filename != '' and file.filename is not None:
+                    file_path = file.filename
+                    save_path = os.path.join('imagens', file.filename)
+                    file.save(save_path)
+        else:
+            # Handle JSON data
+            data = request.get_json()
+            file_path = None
 
         titulo = data.get("titulo")
         classificacao = data.get("classificacao")
@@ -162,12 +191,19 @@ class BlocoCadastro(Resource):
         pedreira = data.get("pedreira")
         observacoes = data.get("observacoes")
         cep = data.get("cep")
+        
         if cep:
             res = requests.get(f"https://viacep.com.br/ws/{cep}/json/")
             logradouro = str(res.json()['logradouro']) + ', ' + str(res.json()['bairro'])
             cidade = res.json()['localidade']
             estado = res.json()['uf']
             pais = 'Brasil'
+        else:
+            logradouro = None
+            cidade = None
+            estado = None
+            pais = None
+            
         valor = data.get("valor")
         data_criacao = datetime.now()
         data_alteracao = datetime.now()
@@ -195,13 +231,15 @@ class BlocoCadastro(Resource):
                 data_alteracao=data_alteracao,
                 estado=estado,
                 id_usuario=str(id_usuario['message']),
-                status=status
+                status=status,
+                imagem=file_path
             )
             session.add(bloco)
             session.commit()
             session.close()
 
             response = jsonify({"message": "Bloco cadastrado com sucesso"})
+            response.status_code = 200
             return response
         
         else:

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Box, InputBase, IconButton, Paper } from '@mui/material';
 import { Search as SearchIcon, FilterList as FilterIcon } from '@mui/icons-material';
+import { useNavigate } from 'react-router-dom';
 import DropDownFilter from './DropDownFilter';
 import StyledButton from './StyledButton';
 import BlockModal from './blocks/BlockRegister';
@@ -10,8 +11,8 @@ interface Props {
   setSearchTerm: (value: string) => void;
   showRegisterButton?: boolean;
 }
-
 const SearchBar = ({ searchTerm, setSearchTerm, showRegisterButton = true }: Props) => {
+  const navigate = useNavigate();
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   return (
@@ -165,29 +166,28 @@ const SearchBar = ({ searchTerm, setSearchTerm, showRegisterButton = true }: Pro
           >
             BUSCAR
           </StyledButton>
-
           {showRegisterButton && (
             <StyledButton
               variant="contained"
-              onClick={() => setIsModalOpen(true)}
+              onClick={() => navigate('/blocks/create')}
               sx={{
-                borderRadius: { xs: '8px', md: '12px' },
-                padding: { xs: '10px 16px', md: '12px 24px' },
-                fontSize: { xs: '13px', md: '14px' },
-                fontWeight: 600,
-                textTransform: 'none',
-                backgroundColor: '#001f2e',
-                color: '#ffffff',
-                minWidth: { xs: '100px', md: '120px' },
-                border: '2px solid #001f2e',
-                flex: { xs: 1, sm: 'none' },
-                transition: 'all 0.3s ease',
-                '&:hover': {
-                  backgroundColor: '#003547',
-                  borderColor: '#003547',
-                  transform: 'translateY(-1px)',
-                  boxShadow: '0 6px 20px rgba(0, 31, 46, 0.3)',
-                }
+              borderRadius: { xs: '8px', md: '12px' },
+              padding: { xs: '10px 16px', md: '12px 24px' },
+              fontSize: { xs: '13px', md: '14px' },
+              fontWeight: 600,
+              textTransform: 'none',
+              backgroundColor: '#001f2e',
+              color: '#ffffff',
+              minWidth: { xs: '100px', md: '120px' },
+              border: '2px solid #001f2e',
+              flex: { xs: 1, sm: 'none' },
+              transition: 'all 0.3s ease',
+              '&:hover': {
+                backgroundColor: '#003547',
+                borderColor: '#003547',
+                transform: 'translateY(-1px)',
+                boxShadow: '0 6px 20px rgba(0, 31, 46, 0.3)',
+              }
               }}
             >
               CADASTRAR

@@ -15,6 +15,7 @@ export default function BlockDetailsRoute() {
 
   const block = blocks.find((b) => String(b.id) === String(id));
 
+  console.log('BlockDetailsRoute - blocks array:', blocks, 'looking for id:', id, 'found block:', block);
   // Verificar se o bloco já está nos favoritos ao carregar
   useEffect(() => {
     const checkFavoriteStatus = async () => {
@@ -68,7 +69,7 @@ export default function BlockDetailsRoute() {
     );
   }
 
-  if (!block) {
+  if (!loading && !block) {
     return (
       <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh' }}>
         <p>Bloco não encontrado</p>

@@ -11,6 +11,10 @@ import { useSelector } from 'react-redux';
 import { RootState } from '../redux/root-reducer';
 import Lotes from '../pages/Lotes';
 import BlockDetailsRoute from './BlockDetailsRoute';
+import LoteEdit from '../pages/LoteEdit';
+import BlockEdit from '../pages/BlockEdit';
+import BlockCreate from '../pages/BlockCreate';
+
 
 interface props {
     signed : boolean,
@@ -39,6 +43,9 @@ const AppRoutes: React.FC = () => {
       <Route path="/Lotes" element={<Private signed={signed} Item={Lotes} />} /> {/* nao serve */}
       <Route path="/blocks/:id" element={<BlockDetailsRoute />} />
       <Route path="/favorites" element={<Private signed={signed} Item={Favorites} />} />
+      <Route path="/lotes/:id/edit" element={<LoteEdit />} />
+      <Route path="/blocks/:id/edit" element={<BlockEdit />} />
+      <Route path="blocks/create" element={<BlockCreate />} />
     </Routes>
   );
 };

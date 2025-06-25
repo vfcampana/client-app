@@ -15,6 +15,7 @@ session = Session()
 class LoteList(Resource):
     def get(self):
         
+        print("Listando lotes")
         id_usuario = verificar_jwt()
 
         if id_usuario['code'] != 200:
@@ -27,7 +28,16 @@ class LoteList(Resource):
         lista_lotes = []
 
         for lote in lotes:
-            lista_lotes.append(lote.to_dict())
+            lote_dict = lote.to_dict()
+            lote_dict['blocos'] = []
+
+            lote_blocos = session.query(LoteBlocos).filter(LoteBlocos.id_lote == lote.id).all()
+            for lote_bloco in lote_blocos:
+                lote_dict['blocos'].append(lote_bloco.id_bloco)
+
+            lista_lotes.append(lote_dict)
+
+        print("Lotes encontrados:", lista_lotes)
 
         response = jsonify(lista_lotes)
         response.status_code = 200
@@ -36,6 +46,7 @@ class LoteList(Resource):
 class LoteGet(Resource):
     def get(self, id):
         
+        print("Obtendo lote")
         id_usuario = verificar_jwt()
 
         if id_usuario['code'] != 200:
@@ -97,16 +108,17 @@ class LoteDelete(Resource):
 
 class LoteAtualiza(Resource):
     def put(self, id):
-
         id_usuario = verificar_jwt()
-
         if id_usuario['code'] != 200:
             response = jsonify({"message": id_usuario['message']})
             response.status_code = id_usuario['code']
             return response
-        
         data = request.get_json()
 
+        if 'status' in data:
+            data['status'] = 0 if data['status'] == 'privado' else 1
+
+        print(data)
         lote = session.query(Lote).filter(Lote.id == id).filter(Lote.id_usuario == id_usuario['message']).first()
 
         if not lote:
@@ -119,6 +131,7 @@ class LoteAtualiza(Resource):
         lote.observacoes = data.get('observacoes', lote.observacoes)
         lote.status = data.get('status', lote.status)
 
+        session.add(lote)
         if data.get('blocos'):
             lote_bloco = session.query(LoteBlocos).filter(LoteBlocos.id_lote == id).all()
             
@@ -131,7 +144,7 @@ class LoteAtualiza(Resource):
                     response = jsonify({"message": "Bloco não encontrado"})
                     response.status_code = 404
                     return response
-                if bloco.id_usuario != id_usuario['message']:
+                if str(bloco.id_usuario) != str(id_usuario['message']):
                     response = jsonify({"message": "Bloco não pertence ao usuário"})	
                     response.status_code = 404
                     return response
@@ -141,26 +154,18 @@ class LoteAtualiza(Resource):
                     id_lote=lote.id
                 )
                 session.add(lote_blocos)
-
-            session.commit()
-            session.close()
-
-            response = jsonify({"message": "Lote atualizado com sucesso"})
-            response.status_code = 200
-            return response
-
+        
         session.commit()
         session.close()
 
         response = jsonify({"message": "Lote atualizado com sucesso"})
         response.status_code = 200
         return response
-        
 
 
 class LoteCadastro(Resource):
     def post(self):
-
+        print("Cadastrando lote")
         id_usuario = verificar_jwt()
 
         if id_usuario['code'] != 200:
@@ -172,18 +177,19 @@ class LoteCadastro(Resource):
         nome = data.get('nome')
         preco = data.get('preco')
         observacoes = data.get('observacoes')
-        status = data.get('status')
         blocos = data.get('blocos')
+        status = data.get('status')
         
         if nome and preco and observacoes and status and blocos:
 
+            status = 0 if status == 'privado' else 1
             for bloco in blocos:
                 bloco = session.query(Bloco).filter(Bloco.id == bloco).first()
                 if not bloco:
                     response = jsonify({"message": "Bloco não encontrado"})
                     response.status_code = 404
                     return response
-                if bloco.id_usuario != id_usuario['message']:
+                if str(bloco.id_usuario) != id_usuario['message']:
                     response = jsonify({"message": "Bloco não pertence ao usuário"})	
                     response.status_code = 404
                     return response

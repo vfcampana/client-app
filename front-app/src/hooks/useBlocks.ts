@@ -21,7 +21,7 @@ export const useBlocks = (): UseBlocksReturn => {
       setError(null);
       
       const response = await fetch(`${API_BASE_URL}/bloco`);
-    
+      console.log(response);
       if (!response.ok) {
         throw new Error(`Erro ${response.status}: ${response.statusText}`);
       }
