@@ -26,8 +26,7 @@ import {
   PhotoCamera,
   Edit 
 } from '@mui/icons-material'
-import { useBlocks } from '../hooks/useBlocks'
-import { updateBlock } from '../services/blocks'
+import { getBlock, updateBlock } from '../services/blocks'
 import StyledButton from '../components/StyledButton'
 
 const stoneImageExample = require('../assets/stone.png') as string
@@ -37,12 +36,27 @@ const BlockEdit: React.FC = () => {
   const navigate = useNavigate()
   const theme = useTheme()
   const isMobile = useMediaQuery(theme.breakpoints.down('md'))
-  const { blocks, loading, error, refetch } = useBlocks()
+  
+  const [block, setBlock] = useState<any>(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
   
   const [form, setForm] = useState({ 
     titulo: '', 
-    observacoes: '',
+    classificacao: '',
+    coloracao: '',
     material: '',
+    medida_bruta: '',
+    volume_bruto: '',
+    medida_liquida: '',
+    volume_liquido: '',
+    pedreira: '',
+    observacoes: '',
+    cep: '',
+    logradouro: '',
+    pais: '',
+    cidade: '',
+    estado: '',
     valor: '',
     status: 'privado' as 'privado' | 'anunciado'
   })
@@ -50,8 +64,29 @@ const BlockEdit: React.FC = () => {
   const [imageFile, setImageFile] = useState<File | null>(null)
   const [imagePreview, setImagePreview] = useState<string>('')
 
-  // Encontrar o bloco específico
-  const block = blocks.find(b => b.id === Number(id))
+  // Buscar o bloco específico
+  useEffect(() => {
+    const fetchBlock = async () => {
+      if (!id) return;
+      
+      setLoading(true);
+      setError(null);
+      
+      try {
+        console.log('Buscando bloco com ID:', id);
+        const blockData = await getBlock(parseInt(id));
+        console.log('Bloco encontrado:', blockData);
+        setBlock(blockData);
+      } catch (err) {
+        console.error('Erro ao buscar bloco:', err);
+        setError(err instanceof Error ? err.message : 'Erro desconhecido');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchBlock();
+  }, [id]);
 
   // Função para converter status do banco (0/1) para texto
   const getStatusText = (status: number | string): 'privado' | 'anunciado' => {
@@ -71,8 +106,20 @@ const BlockEdit: React.FC = () => {
     if (block) {
       setForm({
         titulo: block.titulo || '',
-        observacoes: block.observacoes || '',
+        classificacao: block.classificacao || '',
+        coloracao: block.coloracao || '',
         material: block.material || '',
+        medida_bruta: block.medida_bruta || '',
+        volume_bruto: block.volume_bruto || '',
+        medida_liquida: block.medida_liquida || '',
+        volume_liquido: block.volume_liquido || '',
+        pedreira: block.pedreira || '',
+        observacoes: block.observacoes || '',
+        cep: block.cep || '',
+        logradouro: block.logradouro || '',
+        pais: block.pais || '',
+        cidade: block.cidade || '',
+        estado: block.estado || '',
         valor: block.valor?.toString() || '0',
         status: getStatusText(block.status || 0)
       })
@@ -95,26 +142,59 @@ const BlockEdit: React.FC = () => {
   const handleSave = async () => {
     setSaving(true)
     try {
+      // Validação básica
+      if (!form.titulo || !form.material || !form.valor) {
+        alert('Por favor, preencha todos os campos obrigatórios');
+        return;
+      }
+
       // Criar FormData para enviar imagem
       const formData = new FormData()
+      
+      // Adicionar todos os campos
       formData.append('titulo', form.titulo)
-      formData.append('observacoes', form.observacoes)
+      formData.append('classificacao', form.classificacao)
+      formData.append('coloracao', form.coloracao)
       formData.append('material', form.material)
+      formData.append('medida_bruta', form.medida_bruta)
+      formData.append('volume_bruto', form.volume_bruto)
+      formData.append('medida_liquida', form.medida_liquida)
+      formData.append('volume_liquido', form.volume_liquido)
+      formData.append('pedreira', form.pedreira)
+      formData.append('observacoes', form.observacoes)
+      formData.append('cep', form.cep)
+      formData.append('logradouro', form.logradouro)
+      formData.append('pais', form.pais)
+      formData.append('cidade', form.cidade)
+      formData.append('estado', form.estado)
       formData.append('valor', form.valor)
       formData.append('status', getStatusNumber(form.status).toString())
+      
+      // Adicionar data de alteração
+      const now = new Date().toISOString().split('T')[0];
+      formData.append('data_alteracao', now)
       
       if (imageFile) {
         formData.append('imagem', imageFile)
       }
 
-      await updateBlock(Number(id), formData)
+      console.log('Atualizando bloco com dados:');
+      Array.from(formData.entries()).forEach(([key, value]) => {
+        console.log(key, value);
+      });
+
+      const updatedBlock = await updateBlock(Number(id), formData)
+      console.log('Bloco atualizado:', updatedBlock);
       
-      await refetch()
       alert('Bloco atualizado com sucesso!')
       navigate('/Blocks')
     } catch (err) {
-      console.error(err)
-      alert('Erro ao salvar bloco')
+      console.error('Erro ao salvar bloco:', err)
+      if (err instanceof Error) {
+        alert('Erro ao salvar bloco: ' + err.message)
+      } else {
+        alert('Erro ao salvar bloco')
+      }
     } finally {
       setSaving(false)
     }
@@ -149,7 +229,7 @@ const BlockEdit: React.FC = () => {
         textAlign: 'center'
       }}>
         <Typography variant={isMobile ? 'h6' : 'h5'} color="error" sx={{ mb: 2 }}>
-          Bloco não encontrado
+          {error || 'Bloco não encontrado'}
         </Typography>
         <Button 
           onClick={() => navigate('/Blocks')} 
@@ -303,11 +383,177 @@ const BlockEdit: React.FC = () => {
               </Typography>
 
               <Stack spacing={{ xs: 2, md: 3 }}>
+                <Grid container spacing={2}>
+                  <Grid item xs={12} md={6}>
+                    <TextField
+                      fullWidth
+                      label="Título"
+                      required
+                      value={form.titulo}
+                      onChange={(e) => setForm({ ...form, titulo: e.target.value })}
+                      size={isMobile ? 'small' : 'medium'}
+                      sx={{ 
+                        '& .MuiOutlinedInput-root': {
+                          '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                            borderColor: '#001f2e',
+                          },
+                        },
+                        '& .MuiInputLabel-root.Mui-focused': {
+                          color: '#001f2e',
+                        },
+                      }}
+                    />
+                  </Grid>
+                  <Grid item xs={12} md={6}>
+                    <TextField
+                      fullWidth
+                      label="Material"
+                      required
+                      value={form.material}
+                      onChange={(e) => setForm({ ...form, material: e.target.value })}
+                      size={isMobile ? 'small' : 'medium'}
+                      sx={{ 
+                        '& .MuiOutlinedInput-root': {
+                          '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                            borderColor: '#001f2e',
+                          },
+                        },
+                        '& .MuiInputLabel-root.Mui-focused': {
+                          color: '#001f2e',
+                        },
+                      }}
+                    />
+                  </Grid>
+                </Grid>
+
+                <Grid container spacing={2}>
+                  <Grid item xs={12} md={6}>
+                    <TextField
+                      fullWidth
+                      label="Classificação"
+                      value={form.classificacao}
+                      onChange={(e) => setForm({ ...form, classificacao: e.target.value })}
+                      size={isMobile ? 'small' : 'medium'}
+                      sx={{ 
+                        '& .MuiOutlinedInput-root': {
+                          '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                            borderColor: '#001f2e',
+                          },
+                        },
+                        '& .MuiInputLabel-root.Mui-focused': {
+                          color: '#001f2e',
+                        },
+                      }}
+                    />
+                  </Grid>
+                  <Grid item xs={12} md={6}>
+                    <TextField
+                      fullWidth
+                      label="Coloração"
+                      value={form.coloracao}
+                      onChange={(e) => setForm({ ...form, coloracao: e.target.value })}
+                      size={isMobile ? 'small' : 'medium'}
+                      sx={{ 
+                        '& .MuiOutlinedInput-root': {
+                          '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                            borderColor: '#001f2e',
+                          },
+                        },
+                        '& .MuiInputLabel-root.Mui-focused': {
+                          color: '#001f2e',
+                        },
+                      }}
+                    />
+                  </Grid>
+                </Grid>
+
+                <Grid container spacing={2}>
+                  <Grid item xs={12} md={6}>
+                    <TextField
+                      fullWidth
+                      label="Medida Bruta"
+                      value={form.medida_bruta}
+                      onChange={(e) => setForm({ ...form, medida_bruta: e.target.value })}
+                      size={isMobile ? 'small' : 'medium'}
+                      sx={{ 
+                        '& .MuiOutlinedInput-root': {
+                          '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                            borderColor: '#001f2e',
+                          },
+                        },
+                        '& .MuiInputLabel-root.Mui-focused': {
+                          color: '#001f2e',
+                        },
+                      }}
+                    />
+                  </Grid>
+                  <Grid item xs={12} md={6}>
+                    <TextField
+                      fullWidth
+                      label="Volume Bruto"
+                      value={form.volume_bruto}
+                      onChange={(e) => setForm({ ...form, volume_bruto: e.target.value })}
+                      size={isMobile ? 'small' : 'medium'}
+                      sx={{ 
+                        '& .MuiOutlinedInput-root': {
+                          '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                            borderColor: '#001f2e',
+                          },
+                        },
+                        '& .MuiInputLabel-root.Mui-focused': {
+                          color: '#001f2e',
+                        },
+                      }}
+                    />
+                  </Grid>
+                </Grid>
+
+                <Grid container spacing={2}>
+                  <Grid item xs={12} md={6}>
+                    <TextField
+                      fullWidth
+                      label="Medida Líquida"
+                      value={form.medida_liquida}
+                      onChange={(e) => setForm({ ...form, medida_liquida: e.target.value })}
+                      size={isMobile ? 'small' : 'medium'}
+                      sx={{ 
+                        '& .MuiOutlinedInput-root': {
+                          '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                            borderColor: '#001f2e',
+                          },
+                        },
+                        '& .MuiInputLabel-root.Mui-focused': {
+                          color: '#001f2e',
+                        },
+                      }}
+                    />
+                  </Grid>
+                  <Grid item xs={12} md={6}>
+                    <TextField
+                      fullWidth
+                      label="Volume Líquido"
+                      value={form.volume_liquido}
+                      onChange={(e) => setForm({ ...form, volume_liquido: e.target.value })}
+                      size={isMobile ? 'small' : 'medium'}
+                      sx={{ 
+                        '& .MuiOutlinedInput-root': {
+                          '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                            borderColor: '#001f2e',
+                          },
+                        },
+                        '& .MuiInputLabel-root.Mui-focused': {
+                          color: '#001f2e',
+                        },
+                      }}
+                    />
+                  </Grid>
+                </Grid>
+
                 <TextField
                   fullWidth
-                  label="Título"
-                  value={form.titulo}
-                  onChange={(e) => setForm({ ...form, titulo: e.target.value })}
+                  label="Pedreira"
+                  value={form.pedreira}
+                  onChange={(e) => setForm({ ...form, pedreira: e.target.value })}
                   size={isMobile ? 'small' : 'medium'}
                   sx={{ 
                     '& .MuiOutlinedInput-root': {
@@ -321,28 +567,112 @@ const BlockEdit: React.FC = () => {
                   }}
                 />
 
-                <TextField
-                  fullWidth
-                  label="Material"
-                  value={form.material}
-                  onChange={(e) => setForm({ ...form, material: e.target.value })}
-                  size={isMobile ? 'small' : 'medium'}
-                  sx={{ 
-                    '& .MuiOutlinedInput-root': {
-                      '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                        borderColor: '#001f2e',
-                      },
-                    },
-                    '& .MuiInputLabel-root.Mui-focused': {
-                      color: '#001f2e',
-                    },
-                  }}
-                />
+                <Grid container spacing={2}>
+                  <Grid item xs={12} md={4}>
+                    <TextField
+                      fullWidth
+                      label="CEP"
+                      value={form.cep}
+                      onChange={(e) => setForm({ ...form, cep: e.target.value })}
+                      size={isMobile ? 'small' : 'medium'}
+                      sx={{ 
+                        '& .MuiOutlinedInput-root': {
+                          '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                            borderColor: '#001f2e',
+                          },
+                        },
+                        '& .MuiInputLabel-root.Mui-focused': {
+                          color: '#001f2e',
+                        },
+                      }}
+                    />
+                  </Grid>
+                  <Grid item xs={12} md={8}>
+                    <TextField
+                      fullWidth
+                      label="Logradouro"
+                      value={form.logradouro}
+                      onChange={(e) => setForm({ ...form, logradouro: e.target.value })}
+                      size={isMobile ? 'small' : 'medium'}
+                      sx={{ 
+                        '& .MuiOutlinedInput-root': {
+                          '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                            borderColor: '#001f2e',
+                          },
+                        },
+                        '& .MuiInputLabel-root.Mui-focused': {
+                          color: '#001f2e',
+                        },
+                      }}
+                    />
+                  </Grid>
+                </Grid>
+
+                <Grid container spacing={2}>
+                  <Grid item xs={12} md={4}>
+                    <TextField
+                      fullWidth
+                      label="Cidade"
+                      value={form.cidade}
+                      onChange={(e) => setForm({ ...form, cidade: e.target.value })}
+                      size={isMobile ? 'small' : 'medium'}
+                      sx={{ 
+                        '& .MuiOutlinedInput-root': {
+                          '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                            borderColor: '#001f2e',
+                          },
+                        },
+                        '& .MuiInputLabel-root.Mui-focused': {
+                          color: '#001f2e',
+                        },
+                      }}
+                    />
+                  </Grid>
+                  <Grid item xs={12} md={4}>
+                    <TextField
+                      fullWidth
+                      label="Estado"
+                      value={form.estado}
+                      onChange={(e) => setForm({ ...form, estado: e.target.value })}
+                      size={isMobile ? 'small' : 'medium'}
+                      sx={{ 
+                        '& .MuiOutlinedInput-root': {
+                          '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                            borderColor: '#001f2e',
+                          },
+                        },
+                        '& .MuiInputLabel-root.Mui-focused': {
+                          color: '#001f2e',
+                        },
+                      }}
+                    />
+                  </Grid>
+                  <Grid item xs={12} md={4}>
+                    <TextField
+                      fullWidth
+                      label="País"
+                      value={form.pais}
+                      onChange={(e) => setForm({ ...form, pais: e.target.value })}
+                      size={isMobile ? 'small' : 'medium'}
+                      sx={{ 
+                        '& .MuiOutlinedInput-root': {
+                          '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                            borderColor: '#001f2e',
+                          },
+                        },
+                        '& .MuiInputLabel-root.Mui-focused': {
+                          color: '#001f2e',
+                        },
+                      }}
+                    />
+                  </Grid>
+                </Grid>
 
                 <TextField
                   fullWidth
                   label="Valor"
                   type="number"
+                  required
                   value={form.valor}
                   onChange={(e) => setForm({ ...form, valor: e.target.value })}
                   size={isMobile ? 'small' : 'medium'}
@@ -523,28 +853,29 @@ const BlockEdit: React.FC = () => {
                 </Box>
               </Box>
 
-              <Button
-                variant="outlined"
-                component="label"
-                fullWidth
-                startIcon={<PhotoCamera />}
-                sx={{
-                  color: '#001f2e',
-                  borderColor: '#001f2e',
-                  '&:hover': {
-                    backgroundColor: '#f0f9ff',
-                    borderColor: '#003547'
-                  }
-                }}
-              >
-                Alterar Imagem
-                <input
-                  type="file"
-                  hidden
-                  accept="image/*"
-                  onChange={handleImageChange}
-                />
-              </Button>
+              <label style={{ width: '100%' }}>
+                <StyledButton
+                  variant="outlined"
+                  fullWidth
+                  startIcon={<PhotoCamera />}
+                  sx={{
+                    color: '#001f2e',
+                    borderColor: '#001f2e',
+                    '&:hover': {
+                      backgroundColor: '#f0f9ff',
+                      borderColor: '#003547'
+                    }
+                  }}
+                >
+                  Alterar Imagem
+                  <input
+                    type="file"
+                    hidden
+                    accept="image/*"
+                    onChange={handleImageChange}
+                  />
+                </StyledButton>
+              </label>
 
               {/* Informações Atuais */}
               <Box sx={{ mt: 3 }}>

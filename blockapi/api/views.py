@@ -4,7 +4,7 @@ from api.resources.usuario import UsuarioGet, UsuarioAtualiza, UsuarioDelete, Us
 from api.resources.bloco import BlocoPublic, BlocoList, BlocoGet, BlocoDelete, BlocoAtualiza, BlocoCadastro
 from api.resources.anuncio import AnuncioList, AnuncioGet, AnuncioDelete, AnuncioCadastro
 from api.resources.lote import LoteList, LoteGet, LoteDelete, LoteAtualiza, LoteCadastro
-from api.resources.chat import ChatList, ChatGet, EnviarMensagem
+from api.resources.chat import ConversasList, ConversaMessages, IniciarConversa
 from api.resources.favorito import FavoritoPost, FavoritoGet, FavoritoDelete
 
 api_bp = Blueprint('api', __name__)
@@ -55,8 +55,7 @@ api.add_resource(LoteCadastro, '/lote')
 
 
 # Rotas de Chat / Mensagens
+api.add_resource(ConversasList, '/conversas')
+api.add_resource(ConversaMessages, '/conversas/<int:conversa_id>/mensagens')
+api.add_resource(IniciarConversa, '/iniciar-conversa')
 
-api.add_resource(ChatList, '/chat')
-api.add_resource(ChatGet, '/chat/<int:id>')
-
-api.add_resource(EnviarMensagem, '/chat/<int:id>')

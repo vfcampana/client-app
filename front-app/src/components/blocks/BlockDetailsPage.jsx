@@ -13,10 +13,6 @@ import {
 } from "@mui/material";
 import {
   ArrowBack,
-  Favorite,
-  FavoriteBorder,
-  Share,
-  Edit,
   Handshake,
   Star,
   Business,
@@ -24,16 +20,17 @@ import {
 
 } from "@mui/icons-material";
 import { useTheme } from "@mui/material/styles";
+import { useNavigate } from "react-router-dom";
 
 export default function BlockDetailsPage({ 
   block, 
   onBack, 
-  onNegotiate, 
   onInterest, 
   isFavorite = false, 
   favoriteLoading = false 
 }) {
   const theme = useTheme();
+  const navigate = useNavigate();
 
   const formatDate = (dateString) => {
     if (!dateString) return "N/A";
@@ -48,6 +45,42 @@ export default function BlockDetailsPage({
       style: "currency",
       currency: "BRL",
     }).format(numValue);
+  };
+
+  const handleIniciarConversa = async () => {
+    try {
+      const token = localStorage.getItem('authToken');
+      
+      if (!token) {
+        alert('Você precisa estar logado para negociar');
+        return;
+      }
+
+      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL || 'http://localhost:5000'}/iniciar-conversa`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          bloco_id: block.id,
+          vendedor_id: block.id_usuario, // Assumindo que o bloco tem o id do usuário
+          mensagem: 'Olá! Tenho interesse neste bloco.'
+        })
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        // Redirecionar para o chat
+        navigate('/chat');
+        alert('Conversa iniciada! Redirecionando para o chat...');
+      } else {
+        throw new Error('Erro ao iniciar conversa');
+      }
+    } catch (error) {
+      console.error('Erro ao iniciar conversa:', error);
+      alert('Erro ao iniciar conversa. Tente novamente.');
+    }
   };
 
   return (
@@ -210,7 +243,7 @@ export default function BlockDetailsPage({
           variant="contained"
           size="large"
           startIcon={<Handshake />}
-          onClick={() => onNegotiate && onNegotiate(block)}
+          onClick={handleIniciarConversa}
           sx={{
             backgroundColor: theme.palette.primary.main,
             color: "white",

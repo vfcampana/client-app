@@ -1,5 +1,5 @@
 import { Box, Paper, Typography, Chip, IconButton, Skeleton, Checkbox, Tabs, Tab, Dialog, DialogTitle, DialogContent, DialogActions, TextField, FormControl, FormLabel, RadioGroup, FormControlLabel, Radio } from '@mui/material';
-import { VisibilityOutlined, EditOutlined, ArchiveOutlined, CalendarTodayOutlined, AttachMoneyOutlined, Delete, Group, LocalOffer } from '@mui/icons-material';
+import { VisibilityOutlined, EditOutlined, ArchiveOutlined, CalendarTodayOutlined, AttachMoneyOutlined, Delete, Group, LocalOffer, Visibility, VisibilityOff } from '@mui/icons-material';
 import StyledButton from '../StyledButton';
 import { fetchBlocks } from '../../services/blocks';
 import { useQuery } from '@tanstack/react-query';
@@ -11,7 +11,6 @@ import { useNavigate } from 'react-router-dom';
 import CreateLoteModal from '../lotes/CreateLoteModal';
 import { useLotes, useDeleteLote, useUpdateLote } from '../../hooks/useLotes';
 import LoteDetails from '../lotes/LoteDetails';
-
 
 const stoneImageExample = require('../../assets/stone.png') as string;
 
@@ -39,7 +38,6 @@ const MyBlocks = () => {
   const [viewingLote, setViewingLote] = useState<any>(null);
   const [showViewModal, setShowViewModal] = useState(false);
 
-
   // Estados para editar lote
   const [editingLote, setEditingLote] = useState<any>(null);
   const [showEditModal, setShowEditModal] = useState(false);
@@ -61,11 +59,28 @@ const MyBlocks = () => {
   );
 
   // Função para converter status do banco (0/1) para texto
-  const getStatusText = (status: number | string): 'privado' | 'anunciado' => {
+  const getStatusText = (status: number | string | undefined): 'privado' | 'anunciado' => {
+    // Se for undefined/null, assumir privado
+    if (status === undefined || status === null) {
+      return 'privado';
+    }
+    
     if (typeof status === 'number') {
       return status === 0 ? 'privado' : 'anunciado';
     }
-    return status as 'privado' | 'anunciado';
+    
+    if (typeof status === 'string') {
+      const lowerStatus = status.toLowerCase();
+      if (lowerStatus === 'privado' || lowerStatus === '0') {
+        return 'privado';
+      }
+      if (lowerStatus === 'anunciado' || lowerStatus === '1') {
+        return 'anunciado';
+      }
+    }
+    
+    // Default
+    return 'privado';
   };
 
   const handleViewLote = (lote: any) => {
@@ -85,6 +100,7 @@ const MyBlocks = () => {
   const handleEditBlock = (block: Block) => {
     navigate(`/blocks/${block.id}/edit`);
   };
+
   // Função para criar lote
   const handleCreateLote = () => {
     if (selectedBlocks.length === 0) {
@@ -283,201 +299,222 @@ const MyBlocks = () => {
                 </Typography>
               </Box>
             ) : (
-              filteredBlocks?.map((block: Block) => (
-                <Paper
-                  key={block.id}
-                  elevation={0}
-                  sx={{
-                    borderRadius: 4,
-                    overflow: 'hidden',
-                    border: isSelectionMode && selectedBlocks.includes(block.id) 
-                      ? '2px solid #001f2e' 
-                      : '1px solid #e5e7eb',
-                    transition: 'all 0.3s ease',
-                    backgroundColor: isSelectionMode && selectedBlocks.includes(block.id) 
-                      ? '#f0f9ff' 
-                      : '#ffffff',
-                    '&:hover': {
-                      borderColor: '#001f2e',
-                      boxShadow: '0 12px 32px rgba(0, 31, 46, 0.12)',
-                      transform: 'translateY(-2px)',
-                    }
-                  }}
-                >
-                  {/* Header do Card de Bloco */}
-                  <Box sx={{
-                    background: 'linear-gradient(135deg, #001f2e 0%, #003547 100%)',
-                    color: 'white',
-                    padding: { xs: 2, md: 3 },
-                  }}>
-                    <Box sx={{ 
-                      display: 'flex', 
-                      justifyContent: 'space-between', 
-                      alignItems: 'flex-start',
-                      flexDirection: { xs: 'column', sm: 'row' },
-                      gap: 2
-                    }}>
-                      <Box sx={{ flex: 1, display: 'flex', alignItems: 'center', gap: 2 }}>
-                        {isSelectionMode && (
-                          <Checkbox
-                            checked={selectedBlocks.includes(block.id)}
-                            onChange={() => handleBlockSelection(block.id)}
-                            sx={{
-                              color: 'rgba(255,255,255,0.7)',
-                              '&.Mui-checked': { color: 'white' }
-                            }}
-                          />
-                        )}
-                        
-                        <Box>
-                          <Typography variant="h5" sx={{ fontWeight: 700, mb: 1 }}>
-                            {block.titulo}
-                          </Typography>
-                          <Chip
-                            label={block.material}
-                            size="small"
-                            sx={{
-                              backgroundColor: 'rgba(255,255,255,0.15)',
-                              color: 'white',
-                              border: '1px solid rgba(255,255,255,0.2)',
-                            }}
-                          />
-                        </Box>
-                      </Box>
-                      
-                      {!isSelectionMode && (
-                        <Box sx={{ display: 'flex', gap: 1 }}>
-                          <IconButton
-                            onClick={() => navigate(`/blocks/${block.id}`)}
-                            sx={{
-                              backgroundColor: 'rgba(255,255,255,0.15)',
-                              color: 'white',
-                              border: '1px solid rgba(255,255,255,0.2)',
-                              borderRadius: 2,
-                              '&:hover': { backgroundColor: 'rgba(255,255,255,0.25)' }
-                            }}
-                          >
-                            <VisibilityOutlined fontSize="small" />
-                          </IconButton>
-                          
-                          <IconButton
-                            onClick={() => handleEditBlock(block)}
-                            sx={{
-                              backgroundColor: 'rgba(255,255,255,0.15)',
-                              color: 'white',
-                              border: '1px solid rgba(255,255,255,0.2)',
-                              borderRadius: 2,
-                              '&:hover': { backgroundColor: 'rgba(255,255,255,0.25)' }
-                            }}
-                          >
-                            <EditOutlined fontSize="small" />
-                          </IconButton>
-                          
-                          <IconButton
-                            sx={{
-                              backgroundColor: 'rgba(255,255,255,0.15)',
-                              color: 'white',
-                              border: '1px solid rgba(255,255,255,0.2)',
-                              borderRadius: 2,
-                              '&:hover': { backgroundColor: 'rgba(255,255,255,0.25)' }
-                            }}
-                          >
-                            <ArchiveOutlined fontSize="small" />
-                          </IconButton>
-                        </Box>
-                      )}
-                    </Box>
-                  </Box>
-
-                  {/* Conteúdo do Card de Bloco */}
-                  <Box sx={{ 
-                    padding: { xs: 2, md: 3 },
-                    display: 'flex',
-                    flexDirection: { xs: 'column', md: 'row' },
-                    gap: 3,
-                    alignItems: { xs: 'center', md: 'flex-start' }
-                  }}>
-                    <Box sx={{ 
-                      flex: 1,
-                      display: 'flex',
-                      flexDirection: 'column',
-                      gap: 2,
-                      width: { xs: '100%', md: 'auto' }
-                    }}>
-                      <Box sx={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: 1.5,
-                        padding: 2,
-                        backgroundColor: '#f8fafc',
-                        borderRadius: 2,
-                        border: '1px solid #e2e8f0'
-                      }}>
-                        <CalendarTodayOutlined sx={{ color: '#001f2e', fontSize: 20 }} />
-                        <Box>
-                          <Typography variant="body2" color="#6b7280" sx={{ fontSize: '0.75rem', fontWeight: 500 }}>
-                            DATA DE REGISTRO
-                          </Typography>
-                          <Typography variant="body1" sx={{ fontWeight: 600, color: '#374151' }}>
-                            {block.data_criacao}
-                          </Typography>
-                        </Box>
-                      </Box>
-
-                      <Box sx={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: 1.5,
-                        padding: 2,
-                        backgroundColor: '#f0fdf4',
-                        borderRadius: 2,
-                        border: '1px solid #bbf7d0'
-                      }}>
-                        <AttachMoneyOutlined sx={{ color: '#059669', fontSize: 20 }} />
-                        <Box>
-                          <Typography variant="body2" color="#065f46" sx={{ fontSize: '0.75rem', fontWeight: 500 }}>
-                            VALOR
-                          </Typography>
-                          <Typography variant="h6" sx={{ fontWeight: 700, color: '#065f46' }}>
-                            R$ {block.valor}
-                          </Typography>
-                        </Box>
-                      </Box>
-                    </Box>
-
-                    <Box sx={{
-                      position: 'relative',
-                      borderRadius: 3,
+              filteredBlocks?.map((block: Block) => {
+                const statusText = getStatusText(block.status);
+                
+                return (
+                  <Paper
+                    key={block.id}
+                    elevation={0}
+                    sx={{
+                      borderRadius: 4,
                       overflow: 'hidden',
-                      boxShadow: '0 8px 24px rgba(0, 31, 46, 0.12)',
-                      width: { xs: '100%', md: 250 },
-                      height: { xs: 200, md: 180 },
-                      maxWidth: { xs: 300, md: 'none' },
-                      border: '3px solid #001f2e',
-                      backgroundColor: '#f8fafc'
+                      border: isSelectionMode && selectedBlocks.includes(block.id) 
+                        ? '2px solid #001f2e' 
+                        : '1px solid #e5e7eb',
+                      transition: 'all 0.3s ease',
+                      backgroundColor: isSelectionMode && selectedBlocks.includes(block.id) 
+                        ? '#f0f9ff' 
+                        : '#ffffff',
+                      '&:hover': {
+                        borderColor: '#001f2e',
+                        boxShadow: '0 12px 32px rgba(0, 31, 46, 0.12)',
+                        transform: 'translateY(-2px)',
+                      }
+                    }}
+                  >
+                    {/* Header do Card de Bloco */}
+                    <Box sx={{
+                      background: 'linear-gradient(135deg, #001f2e 0%, #003547 100%)',
+                      color: 'white',
+                      padding: { xs: 2, md: 3 },
                     }}>
-                      <img
-                        src={block.imagem || stoneImageExample}
-                        alt={`Imagem do bloco ${block.titulo}`}
-                        style={{
-                          width: '100%',
-                          height: '100%',
-                          objectFit: 'cover',
-                          display: 'block'
-                        }}
-                        onError={(e) => {
-                          const target = e.target as HTMLImageElement;
-                          target.src = stoneImageExample;
-                        }}
-                      />
+                      <Box sx={{ 
+                        display: 'flex', 
+                        justifyContent: 'space-between', 
+                        alignItems: 'flex-start',
+                        flexDirection: { xs: 'column', sm: 'row' },
+                        gap: 2
+                      }}>
+                        <Box sx={{ flex: 1, display: 'flex', alignItems: 'center', gap: 2 }}>
+                          {isSelectionMode && (
+                            <Checkbox
+                              checked={selectedBlocks.includes(block.id)}
+                              onChange={() => handleBlockSelection(block.id)}
+                              sx={{
+                                color: 'rgba(255,255,255,0.7)',
+                                '&.Mui-checked': { color: 'white' }
+                              }}
+                            />
+                          )}
+                          
+                          <Box>
+                            <Typography variant="h5" sx={{ fontWeight: 700, mb: 1 }}>
+                              {block.titulo}
+                            </Typography>
+                            <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+                              <Chip
+                                label={block.material}
+                                size="small"
+                                sx={{
+                                  backgroundColor: 'rgba(255,255,255,0.15)',
+                                  color: 'white',
+                                  border: '1px solid rgba(255,255,255,0.2)',
+                                }}
+                              />
+                              {/* TAG DE STATUS DO BLOCO */}
+                              <Chip
+                                label={statusText === 'privado' ? 'Privado' : 'Anunciado'}
+                                size="small"
+                                sx={{
+                                  backgroundColor: statusText === 'privado' 
+                                    ? 'rgba(239, 68, 68, 0.9)' 
+                                    : 'rgba(34, 197, 94, 0.9)',
+                                  color: 'white',
+                                  fontWeight: 'bold',
+                                  '& .MuiChip-icon': {
+                                    color: 'white'
+                                  }
+                                }}
+                              />
+                            </Box>
+                          </Box>
+                        </Box>
+                        
+                        {!isSelectionMode && (
+                          <Box sx={{ display: 'flex', gap: 1 }}>
+                            <IconButton
+                              onClick={() => navigate(`/blocks/${block.id}`)}
+                              sx={{
+                                backgroundColor: 'rgba(255,255,255,0.15)',
+                                color: 'white',
+                                border: '1px solid rgba(255,255,255,0.2)',
+                                borderRadius: 2,
+                                '&:hover': { backgroundColor: 'rgba(255,255,255,0.25)' }
+                              }}
+                            >
+                              <VisibilityOutlined fontSize="small" />
+                            </IconButton>
+                            
+                            <IconButton
+                              onClick={() => handleEditBlock(block)}
+                              sx={{
+                                backgroundColor: 'rgba(255,255,255,0.15)',
+                                color: 'white',
+                                border: '1px solid rgba(255,255,255,0.2)',
+                                borderRadius: 2,
+                                '&:hover': { backgroundColor: 'rgba(255,255,255,0.25)' }
+                              }}
+                            >
+                              <EditOutlined fontSize="small" />
+                            </IconButton>
+                            
+                            <IconButton
+                              sx={{
+                                backgroundColor: 'rgba(255,255,255,0.15)',
+                                color: 'white',
+                                border: '1px solid rgba(255,255,255,0.2)',
+                                borderRadius: 2,
+                                '&:hover': { backgroundColor: 'rgba(255,255,255,0.25)' }
+                              }}
+                            >
+                              <ArchiveOutlined fontSize="small" />
+                            </IconButton>
+                          </Box>
+                        )}
+                      </Box>
                     </Box>
-                  </Box>
-                </Paper>
-              ))
+
+                    {/* Conteúdo do Card de Bloco */}
+                    <Box sx={{ 
+                      padding: { xs: 2, md: 3 },
+                      display: 'flex',
+                      flexDirection: { xs: 'column', md: 'row' },
+                      gap: 3,
+                      alignItems: { xs: 'center', md: 'flex-start' }
+                    }}>
+                      <Box sx={{ 
+                        flex: 1,
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: 2,
+                        width: { xs: '100%', md: 'auto' }
+                      }}>
+                        <Box sx={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: 1.5,
+                          padding: 2,
+                          backgroundColor: '#f8fafc',
+                          borderRadius: 2,
+                          border: '1px solid #e2e8f0'
+                        }}>
+                          <CalendarTodayOutlined sx={{ color: '#001f2e', fontSize: 20 }} />
+                          <Box>
+                            <Typography variant="body2" color="#6b7280" sx={{ fontSize: '0.75rem', fontWeight: 500 }}>
+                              DATA DE REGISTRO
+                            </Typography>
+                            <Typography variant="body1" sx={{ fontWeight: 600, color: '#374151' }}>
+                              {block.data_criacao}
+                            </Typography>
+                          </Box>
+                        </Box>
+
+                        <Box sx={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: 1.5,
+                          padding: 2,
+                          backgroundColor: '#f0fdf4',
+                          borderRadius: 2,
+                          border: '1px solid #bbf7d0'
+                        }}>
+                          <AttachMoneyOutlined sx={{ color: '#059669', fontSize: 20 }} />
+                          <Box>
+                            <Typography variant="body2" color="#065f46" sx={{ fontSize: '0.75rem', fontWeight: 500 }}>
+                              VALOR
+                            </Typography>
+                            <Typography variant="h6" sx={{ fontWeight: 700, color: '#065f46' }}>
+                              R$ {block.valor}
+                            </Typography>
+                          </Box>
+                        </Box>
+                      </Box>
+
+                      <Box sx={{
+                        position: 'relative',
+                        borderRadius: 3,
+                        overflow: 'hidden',
+                        boxShadow: '0 8px 24px rgba(0, 31, 46, 0.12)',
+                        width: { xs: '100%', md: 250 },
+                        height: { xs: 200, md: 180 },
+                        maxWidth: { xs: 300, md: 'none' },
+                        border: '3px solid #001f2e',
+                        backgroundColor: '#f8fafc'
+                      }}>
+                        <img
+                          src={block.imagem || stoneImageExample}
+                          alt={`Imagem do bloco ${block.titulo}`}
+                          style={{
+                            width: '100%',
+                            height: '100%',
+                            objectFit: 'cover',
+                            display: 'block'
+                          }}
+                          onError={(e) => {
+                            const target = e.target as HTMLImageElement;
+                            target.src = stoneImageExample;
+                          }}
+                        />
+                      </Box>
+                    </Box>
+                  </Paper>
+                );
+              })
             )}
           </>
         ) : (
-          // ABA DE LOTES
+          // ABA DE LOTES (mantém o código existente)
           <>
             {filteredLotes?.length === 0 ? (
               <Box sx={{ 
@@ -496,7 +533,7 @@ const MyBlocks = () => {
             ) : (
               filteredLotes?.map((lote: any) => {
                 // Converter status aqui para cada lote
-                console.log("BLOCOS LOTE", lote.blocos)
+                console.log("BLOCOS LOTE", lote.blocos);
                 const statusText = getStatusText(lote.status);
                 
                 return (
@@ -816,20 +853,7 @@ const MyBlocks = () => {
                   } 
                   label="Privado" 
                 />
-                <FormControlLabel 
-                  value="anunciado" 
-                  control={
-                    <Radio 
-                      sx={{
-                        color: '#7c3aed',
-                        '&.Mui-checked': {
-                          color: '#7c3aed',
-                        },
-                      }}
-                    />
-                  } 
-                  label="Anunciado" 
-                />
+                
               </RadioGroup>
             </FormControl>
           </DialogContent>

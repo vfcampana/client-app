@@ -39,7 +39,7 @@ const AppRoutes: React.FC = () => {
       <Route path="/Home" element={<Private signed={signed} Item={Home} />} />
       <Route path="/Blocks" element={<Private signed={signed} Item={Blocks} />} /> 
       <Route path="/Market" element={<Private signed={signed} Item={Market} />} />
-      <Route path="/Chat" element={<Private signed={signed} Item={Chat} />} />{/* nao serve */}
+      <Route path="/Chat" element={<Private signed={signed} Item={Chat} />} />
       <Route path="/Lotes" element={<Private signed={signed} Item={Lotes} />} /> {/* nao serve */}
       <Route path="/blocks/:id" element={<BlockDetailsRoute />} />
       <Route path="/favorites" element={<Private signed={signed} Item={Favorites} />} />

@@ -1,21 +1,82 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import BlockDetailsPage from "../components/blocks/BlockDetailsPage";
-import { useBlocks } from "../hooks/useBlocks";
+import { getBlock } from "../services/blocks";
 import { Box, CircularProgress } from "@mui/material";
 import { useFavoritos } from "../hooks/useFavoritos";
 
 export default function BlockDetailsRoute() {
   const { id } = useParams();
-  const { blocks, loading, error } = useBlocks();
   const navigate = useNavigate();
   const { addFavorito, removeFavoritoById, checkIfFavorite } = useFavoritos();
+  
+  const [block, setBlock] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [isFavorite, setIsFavorite] = useState(false);
   const [favoriteLoading, setFavoriteLoading] = useState(false);
 
-  const block = blocks.find((b) => String(b.id) === String(id));
+  const handleNegotiate = async (blockData) => {
+    console.log('Iniciando negociação para bloco:', blockData);
+    
+    try {
+      const token = localStorage.getItem('authToken');
+      
+      if (!token) {
+        alert('Você precisa estar logado para negociar');
+        return;
+      }
 
-  console.log('BlockDetailsRoute - blocks array:', blocks, 'looking for id:', id, 'found block:', block);
+      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL || 'http://localhost:5000'}/iniciar-conversa`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          bloco_id: blockData.id,
+          vendedor_id: blockData.id_usuario,
+          mensagem: 'Olá! Tenho interesse neste bloco.'
+        })
+      });
+
+      if (response.ok) {
+        // Redirecionar para o chat
+        navigate('/chat');
+        alert('Conversa iniciada! Redirecionando para o chat...');
+      } else {
+        throw new Error('Erro ao iniciar conversa');
+      }
+    } catch (error) {
+      console.error('Erro ao iniciar conversa:', error);
+      alert('Erro ao iniciar conversa. Tente novamente.');
+    }
+  };
+
+  // Buscar o bloco específico usando getBlock
+  useEffect(() => {
+    const fetchBlock = async () => {
+      if (!id) return;
+      
+      setLoading(true);
+      setError(null);
+      
+      try {
+        console.log('Buscando bloco com ID:', id);
+        const blockData = await getBlock(parseInt(id));
+        console.log('Bloco encontrado:', blockData);
+        setBlock(blockData);
+      } catch (err) {
+        console.error('Erro ao buscar bloco:', err);
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchBlock();
+  }, [id]);
+
   // Verificar se o bloco já está nos favoritos ao carregar
   useEffect(() => {
     const checkFavoriteStatus = async () => {
@@ -56,11 +117,6 @@ export default function BlockDetailsRoute() {
     setFavoriteLoading(false);
   };
 
-  const handleNegotiate = (blockData) => {
-    console.log('Negociando bloco:', blockData);
-    window.alert('Funcionalidade de negociação em desenvolvimento');
-  };
-
   if (loading) {
     return (
       <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh' }}>
@@ -69,7 +125,15 @@ export default function BlockDetailsRoute() {
     );
   }
 
-  if (!loading && !block) {
+  if (error) {
+    return (
+      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh' }}>
+        <p>Erro ao carregar bloco: {error}</p>
+      </Box>
+    );
+  }
+
+  if (!block) {
     return (
       <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh' }}>
         <p>Bloco não encontrado</p>

@@ -3,6 +3,7 @@ from models.extensions import engine
 from sqlalchemy.orm import sessionmaker
 from flask_jwt_extended import JWTManager
 from flask_cors import CORS
+from flask_socketio import SocketIO
 from api.views import api_bp
 
 
@@ -17,5 +18,7 @@ session = Session()
 
 app.register_blueprint(api_bp)
 
+socketio = SocketIO(app, cors_allowed_origins='*')
+
 if __name__ == '__main__':
-    app.run(debug=True)
+    socketio.run(app, port=5000, debug=True)

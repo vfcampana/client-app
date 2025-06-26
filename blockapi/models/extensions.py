@@ -2,6 +2,7 @@ from dotenv import load_dotenv
 from flask import request, jsonify, current_app
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
+from flask_socketio import SocketIO
 import os
 import jwt
 
@@ -10,6 +11,8 @@ load_dotenv()
 DATABASE_URL = os.getenv("DATABASE_URL")
 
 engine = create_engine(DATABASE_URL)
+
+socketio = SocketIO(cors_allowed_origins='*')
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 

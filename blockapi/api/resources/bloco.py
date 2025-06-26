@@ -23,6 +23,7 @@ class BlocoPublic(Resource):
             for bloco in blocos:
                 lista_blocos.append(bloco.to_dict())
             
+            print("blocos encontrados:", [bloco['id'] for bloco in lista_blocos])
             return lista_blocos, 200 
             
         except Exception as e:
@@ -34,12 +35,16 @@ class BlocoList(Resource):
     def get(self):
         print("entrou na lista de blocos")
         id_usuario = verificar_jwt()
-        if id_usuario['code'] != 200 or not id_usuario.get('message'):
+        print("id_usuario:", id_usuario)
+        
+        if id_usuario.get('code', 401) != 200 or not id_usuario.get('message'):
+            print('token inválido ou não fornecido')
             response = jsonify({"message": id_usuario.get('message', 'Token inválido ou não fornecido')})
-            response.status_code = id_usuario['code'] # type: ignore
+            response.status_code = id_usuario.get('code', 401) # type: ignore
             return response
         
-        blocos = session.query(Bloco).filter(Bloco.id_usuario == id_usuario['message']).all()
+        blocos = session.query(Bloco).filter(Bloco.id_usuario == str(id_usuario['message'])).all()
+        print("blocos encontrados:", [bloco.id for bloco in blocos])
         lista_blocos = []
 
         for bloco in blocos:
