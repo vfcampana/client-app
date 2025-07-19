@@ -5,6 +5,7 @@ from flask_jwt_extended import JWTManager
 from flask_cors import CORS
 from flask_socketio import SocketIO
 from api.views import api_bp
+from api.resources.imagem_supabase import imagem_bp
 
 
 app = Flask(__name__)
@@ -17,6 +18,7 @@ Session = sessionmaker(bind=engine)
 session = Session()
 
 app.register_blueprint(api_bp)
+app.register_blueprint(imagem_bp, url_prefix='/api')
 
 socketio = SocketIO(app, cors_allowed_origins='*')
 

@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { 
   Box, 
@@ -23,7 +23,11 @@ import {
   Save, 
   Cancel, 
   PhotoCamera,
-  Add 
+  Add,
+  ArrowBackIos,
+  ArrowForwardIos,
+  CameraAlt,
+  PhotoLibrary
 } from '@mui/icons-material'
 import { createBlock } from '../services/blocks'
 import StyledButton from '../components/StyledButton'
@@ -55,18 +59,188 @@ const BlockCreate: React.FC = () => {
     status: 'privado' as 'privado' | 'anunciado'
   })
   const [saving, setSaving] = useState(false)
-  const [imageFile, setImageFile] = useState<File | null>(null)
-  const [imagePreview, setImagePreview] = useState<string>(stoneImageExample)
+  const [imageFiles, setImageFiles] = useState<FileList | null>(null)
+  const [imagePreviews, setImagePreviews] = useState<string[]>([stoneImageExample])
+  const [currentImageIndex, setCurrentImageIndex] = useState(0)
+  const [cameraSupported, setCameraSupported] = useState(false)
+
+  // Verificar se a câmera está disponível
+  useEffect(() => {
+    const checkCameraSupport = async () => {
+      try {
+        if (navigator.mediaDevices && typeof navigator.mediaDevices.getUserMedia === 'function') {
+          const devices = await navigator.mediaDevices.enumerateDevices()
+          const hasCamera = devices.some(device => device.kind === 'videoinput')
+          setCameraSupported(hasCamera)
+          console.log('📸 Câmera disponível:', hasCamera)
+        } else {
+          console.log('📸 MediaDevices API não suportada')
+          setCameraSupported(false)
+        }
+      } catch (error) {
+        console.log('📸 Erro ao verificar câmera:', error)
+        setCameraSupported(false)
+      }
+    }
+    
+    checkCameraSupport()
+  }, [])
 
   const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0]
-    if (file) {
-      setImageFile(file)
-      const reader = new FileReader()
-      reader.onload = (e) => {
-        setImagePreview(e.target?.result as string)
+    const files = event.target.files
+    console.log('🔍 Evento de mudança de arquivo disparado');
+    console.log('📁 Arquivos selecionados:', files?.length || 0);
+    
+    if (files && files.length > 0) {
+      console.log('📷 Processando', files.length, 'imagens...');
+      setImageFiles(files)
+      
+      // Criar previews para todas as imagens
+      const previews: string[] = []
+      let loadedCount = 0
+      
+      Array.from(files).forEach((file, index) => {
+        console.log(`  ${index + 1}. ${file.name} (${(file.size / 1024 / 1024).toFixed(2)} MB)`);
+        const reader = new FileReader()
+        reader.onload = (e) => {
+          previews[index] = e.target?.result as string
+          loadedCount++
+          
+          if (loadedCount === files.length) {
+            console.log('✅ Todos os previews carregados!');
+            console.log('📸 Previews criados:', previews.length);
+            setImagePreviews(previews)
+            setCurrentImageIndex(0)
+          }
+        }
+        reader.onerror = () => {
+          console.error(`❌ Erro ao carregar preview da imagem ${index + 1}`);
+        }
+        reader.readAsDataURL(file)
+      })
+    } else {
+      console.log('⚠️ Nenhum arquivo selecionado - voltando para imagem padrão');
+      setImageFiles(null)
+      setImagePreviews([stoneImageExample])
+      setCurrentImageIndex(0)
+    }
+  }
+
+  const handleCameraCapture = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = event.target.files
+    console.log('📸 Captura da câmera disparada');
+    console.log('📁 Arquivos capturados:', files?.length || 0);
+    
+    if (files && files.length > 0) {
+      // Se já existem imagens, adicionar as novas às existentes
+      if (imageFiles && imageFiles.length > 0) {
+        const existingFiles = Array.from(imageFiles)
+        const newFiles = Array.from(files)
+        const allFiles = [...existingFiles, ...newFiles]
+        
+        // Criar um novo FileList
+        const dataTransfer = new DataTransfer()
+        allFiles.forEach(file => dataTransfer.items.add(file))
+        const newFileList = dataTransfer.files
+        
+        setImageFiles(newFileList)
+        
+        // Criar previews para todas as imagens (existentes + novas)
+        const previews: string[] = []
+        let loadedCount = 0
+        
+        allFiles.forEach((file, index) => {
+          const reader = new FileReader()
+          reader.onload = (e) => {
+            previews[index] = e.target?.result as string
+            loadedCount++
+            
+            if (loadedCount === allFiles.length) {
+              console.log('✅ Todos os previews carregados (incluindo câmera)!');
+              setImagePreviews(previews)
+              setCurrentImageIndex(previews.length - newFiles.length) // Focar na primeira nova imagem
+            }
+          }
+          reader.readAsDataURL(file)
+        })
+      } else {
+        // Se não existem imagens, usar apenas as da câmera
+        handleImageChange(event)
       }
-      reader.readAsDataURL(file)
+    }
+  }
+
+  // Função para verificar se é dispositivo móvel
+  const isMobileDevice = () => {
+    return /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
+  }
+
+  // Função para capturar foto usando MediaDevices API
+  const handleCameraClick = async () => {
+    if (!cameraSupported) {
+      alert('Câmera não disponível neste dispositivo')
+      return
+    }
+
+    try {
+      console.log('📸 Iniciando captura via MediaDevices API...')
+      
+      // Tentar acessar a câmera
+      const stream = await navigator.mediaDevices.getUserMedia({ 
+        video: { 
+          facingMode: isMobileDevice() ? 'environment' : 'user',
+          width: { ideal: 1920 },
+          height: { ideal: 1080 }
+        } 
+      })
+
+      // Criar um elemento de vídeo temporário
+      const video = document.createElement('video')
+      video.srcObject = stream
+      video.autoplay = true
+      video.playsInline = true
+
+      // Aguardar o vídeo carregar
+      await new Promise((resolve) => {
+        video.onloadedmetadata = resolve
+      })
+
+      // Criar canvas para capturar a imagem
+      const canvas = document.createElement('canvas')
+      const context = canvas.getContext('2d')
+      
+      canvas.width = video.videoWidth
+      canvas.height = video.videoHeight
+      
+      // Desenhar o frame atual no canvas
+      context?.drawImage(video, 0, 0)
+      
+      // Parar o stream
+      stream.getTracks().forEach(track => track.stop())
+      
+      // Converter canvas para blob
+      canvas.toBlob((blob) => {
+        if (blob) {
+          const file = new File([blob], `camera-${Date.now()}.jpg`, { type: 'image/jpeg' })
+          
+          // Simular o evento de input file
+          const dataTransfer = new DataTransfer()
+          dataTransfer.items.add(file)
+          
+          const mockEvent = {
+            target: {
+              files: dataTransfer.files
+            }
+          } as React.ChangeEvent<HTMLInputElement>
+          
+          handleCameraCapture(mockEvent)
+          console.log('✅ Foto capturada com sucesso!')
+        }
+      }, 'image/jpeg', 0.8)
+
+    } catch (error) {
+      console.error('❌ Erro ao acessar câmera:', error)
+      alert('Erro ao acessar a câmera. Verifique as permissões.')
     }
   }
 
@@ -95,8 +269,11 @@ const BlockCreate: React.FC = () => {
     formData.append('valor', form.valor)
     formData.append('status', form.status === 'privado' ? '0' : '1')
     
-    if (imageFile) {
-      formData.append('imagem', imageFile)
+    // Adicionar múltiplas imagens se existirem
+    if (imageFiles && imageFiles.length > 0) {
+      Array.from(imageFiles).forEach((file) => {
+        formData.append('imagens', file)
+      })
     }
 
     // Debug: Ver o que está sendo enviado
@@ -683,8 +860,9 @@ const BlockCreate: React.FC = () => {
                 position: 'relative',
                 backgroundColor: '#f8fafc'
               }}>
+                {/* Imagem principal */}
                 <img 
-                  src={imagePreview}
+                  src={imagePreviews[currentImageIndex]}
                   alt="Preview do bloco"
                   style={{
                     width: '100%',
@@ -693,67 +871,167 @@ const BlockCreate: React.FC = () => {
                   }}
                 />
                 
-                {/* Overlay para adicionar imagem */}
-                <Box sx={{
-                  position: 'absolute',
-                  top: 0,
-                  left: 0,
-                  width: '100%',
-                  height: '100%',
-                  backgroundColor: 'rgba(0, 0, 0, 0.5)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  opacity: 0,
-                  '&:hover': {
-                    opacity: 1
-                  },
-                  transition: 'opacity 0.3s ease'
-                }}>
-                  <IconButton
-                    component="label"
+                {/* Navegação do carrossel */}
+                {imageFiles && imageFiles.length > 1 && (
+                  <>
+                    <IconButton
+                      sx={{
+                        position: 'absolute',
+                        left: 8,
+                        top: '50%',
+                        transform: 'translateY(-50%)',
+                        bgcolor: 'rgba(0, 0, 0, 0.5)',
+                        color: 'white',
+                        '&:hover': { bgcolor: 'rgba(0, 0, 0, 0.7)' }
+                      }}
+                      onClick={() => setCurrentImageIndex((prev) => 
+                        prev === 0 ? imagePreviews.length - 1 : prev - 1
+                      )}
+                    >
+                      <ArrowBackIos />
+                    </IconButton>
+                    
+                    <IconButton
+                      sx={{
+                        position: 'absolute',
+                        right: 8,
+                        top: '50%',
+                        transform: 'translateY(-50%)',
+                        bgcolor: 'rgba(0, 0, 0, 0.5)',
+                        color: 'white',
+                        '&:hover': { bgcolor: 'rgba(0, 0, 0, 0.7)' }
+                      }}
+                      onClick={() => setCurrentImageIndex((prev) => 
+                        (prev + 1) % imagePreviews.length
+                      )}
+                    >
+                      <ArrowForwardIos />
+                    </IconButton>
+                    
+                    {/* Indicadores */}
+                    <Box
+                      sx={{
+                        position: 'absolute',
+                        bottom: 8,
+                        left: '50%',
+                        transform: 'translateX(-50%)',
+                        display: 'flex',
+                        gap: 1
+                      }}
+                    >
+                      {imagePreviews.map((_, index) => (
+                        <Box
+                          key={index}
+                          sx={{
+                            width: 8,
+                            height: 8,
+                            borderRadius: '50%',
+                            bgcolor: index === currentImageIndex ? 'white' : 'rgba(255, 255, 255, 0.5)',
+                            cursor: 'pointer'
+                          }}
+                          onClick={() => setCurrentImageIndex(index)}
+                        />
+                      ))}
+                    </Box>
+                  </>
+                )}
+                
+                {/* Contador de imagens */}
+                {imageFiles && imageFiles.length > 1 && (
+                  <Chip
+                    label={`${currentImageIndex + 1}/${imagePreviews.length}`}
+                    size="small"
                     sx={{
-                      backgroundColor: 'white',
-                      color: '#001f2e',
-                      '&:hover': {
-                        backgroundColor: '#f8fafc'
-                      }
+                      position: 'absolute',
+                      top: 8,
+                      right: 8,
+                      bgcolor: 'rgba(0, 0, 0, 0.7)',
+                      color: 'white'
                     }}
-                  >
-                    <PhotoCamera />
+                  />
+                )}
+                
+
+              </Box>
+
+              <Stack spacing={1.5}>
+                <Button
+                  variant="outlined"
+                  fullWidth
+                  component="label"
+                  startIcon={<PhotoLibrary />}
+                  sx={{
+                    backgroundColor: '#f0f9ff',
+                    color: '#001f2e',
+                    borderColor: '#001f2e',
+                    cursor: 'pointer',
+                    textTransform: 'none',
+                    '&:hover': {
+                      backgroundColor: 'transparent',
+                      borderColor: '#003547'
+                    }
+                  }}
+                >
+                  {imageFiles && imageFiles.length > 0 ? 
+                    `📷 Alterar da Galeria (${imageFiles.length} selecionadas)` : 
+                    '📷 Selecionar da Galeria'
+                  }
+                  <input
+                    type="file"
+                    hidden
+                    accept="image/*"
+                    multiple
+                    onChange={handleImageChange}
+                  />
+                </Button>
+
+                <Button
+                  variant="contained"
+                  fullWidth
+                  onClick={cameraSupported ? handleCameraClick : undefined}
+                  component={cameraSupported ? "button" : "label"}
+                  startIcon={<CameraAlt />}
+                  sx={{
+                    backgroundColor: '#001f2e',
+                    color: 'white',
+                    cursor: 'pointer',
+                    textTransform: 'none',
+                    '&:hover': {
+                      backgroundColor: '#003547'
+                    }
+                  }}
+                >
+                  📸 {cameraSupported ? 'Tirar Foto' : 'Selecionar da Câmera'}
+                  {!cameraSupported && (
                     <input
                       type="file"
                       hidden
                       accept="image/*"
-                      onChange={handleImageChange}
+                      capture={isMobileDevice() ? "environment" : true}
+                      onChange={handleCameraCapture}
                     />
-                  </IconButton>
-                </Box>
-              </Box>
+                  )}
+                </Button>
+              </Stack>
 
-                <StyledButton
-                variant="outlined"
-                fullWidth
-                startIcon={<PhotoCamera />}
-                sx={{
-                  color: '#001f2e',
-                  borderColor: '#001f2e',
-                  '&:hover': {
-                  backgroundColor: '#f0f9ff',
-                  borderColor: '#003547'
-                  }
-                }}
-                onClick={() => document.getElementById('image-upload')?.click()}
-                >
-                {imageFile ? 'Alterar Imagem' : 'Adicionar Imagem'}
-                <input
-                  id="image-upload"
-                  type="file"
-                  hidden
-                  accept="image/*"
-                  onChange={handleImageChange}
-                />
-                </StyledButton>
+                {/* Informações sobre imagens selecionadas */}
+                {imageFiles && imageFiles.length > 0 && (
+                  <Box sx={{ mt: 2, p: 2, bgcolor: '#f8fafc', borderRadius: 1 }}>
+                    <Typography variant="body2" color="text.secondary" gutterBottom>
+                      📷 {imageFiles.length} imagem(ns) selecionada(s):
+                    </Typography>
+                    {Array.from(imageFiles).slice(0, 3).map((file, index) => (
+                      <Typography key={index} variant="caption" display="block">
+                        • {file.name}
+                      </Typography>
+                    ))}
+                    {imageFiles.length > 3 && (
+                      <Typography variant="caption" color="text.secondary">
+                        ... e mais {imageFiles.length - 3} arquivo(s)
+                      </Typography>
+                    )}
+                  </Box>
+                )}
 
               {/* Informações */}
               <Box sx={{ mt: 3 }}>
@@ -776,10 +1054,10 @@ const BlockCreate: React.FC = () => {
                     borderRadius: 2,
                   }}>
                     <Typography variant="body2" color="#1e40af" sx={{ fontWeight: 500 }}>
-                      📷 IMAGEM
+                      📷 IMAGENS & 📸 CÂMERA
                     </Typography>
                     <Typography variant="caption" sx={{ color: '#1e40af' }}>
-                      Adicione uma foto de boa qualidade do seu bloco
+                      Use a galeria para múltiplas fotos ou tire fotos direto da câmera
                     </Typography>
                   </Box>
 
@@ -794,6 +1072,25 @@ const BlockCreate: React.FC = () => {
                     </Typography>
                     <Typography variant="caption" sx={{ color: '#15803d' }}>
                       Privado: Apenas você verá. Anunciado: Visível no mercado
+                    </Typography>
+                  </Box>
+
+                  <Box sx={{
+                    padding: 1.5,
+                    backgroundColor: '#fef3f2',
+                    border: '1px solid #ef4444',
+                    borderRadius: 2,
+                  }}>
+                    <Typography variant="body2" color="#dc2626" sx={{ fontWeight: 500 }}>
+                      📱 CÂMERA {cameraSupported ? '✅' : '❌'}
+                    </Typography>
+                    <Typography variant="caption" sx={{ color: '#dc2626' }}>
+                      {cameraSupported 
+                        ? (isMobileDevice() 
+                            ? 'Câmera detectada! Clique para abrir a câmera traseira' 
+                            : 'Câmera detectada! Clique para abrir sua webcam')
+                        : 'Câmera não detectada. Será usado o seletor de arquivos'
+                      }
                     </Typography>
                   </Box>
                 </Stack>

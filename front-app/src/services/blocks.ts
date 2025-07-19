@@ -15,13 +15,7 @@ export const createBlock = async (blockData: any) => {
             }
         });
         
-        // Construir URL da imagem na resposta
-        const createdBlock = {
-            ...response.data,
-            imagem: response.data.imagem ? `${REACT_APP_API_URL}/imagens/${response.data.imagem}` : null
-        };
-        
-        return createdBlock;
+        return response.data;
     }
 
     // Caso contrário, usar JSON
@@ -84,6 +78,19 @@ export const updateBlock = async (id: number, blockData: any) => {
 
     // Caso contrário, usar JSON
     const response = await axios.put(`${REACT_APP_API_URL}/bloco/${id}`, blockData, {
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${authToken}`,
+        }
+    });
+
+    return response.data;
+}
+
+export const deleteBlock = async (id: number) => {
+    const authToken = await localStorage.getItem('authToken');
+    
+    const response = await axios.delete(`${REACT_APP_API_URL}/bloco/${id}`, {
         headers: {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${authToken}`,

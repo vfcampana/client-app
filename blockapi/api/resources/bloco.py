@@ -3,13 +3,16 @@ from flask_restful import Resource
 from sqlalchemy.orm import sessionmaker
 from models.bloco import Bloco
 from models.extensions import engine, verificar_jwt
+from models.imagem_supabase import ImagemSupabase
 from datetime import datetime
 import requests
 import os
 
 Session = sessionmaker(bind=engine)
-
 session = Session()
+
+# Instanciar o serviço de imagens
+imagem_service = ImagemSupabase()
 
 
 class BlocoPublic(Resource):
@@ -21,7 +24,17 @@ class BlocoPublic(Resource):
             
             lista_blocos = []
             for bloco in blocos:
-                lista_blocos.append(bloco.to_dict())
+                bloco_dict = bloco.to_dict()
+                
+                # Buscar imagens do Supabase para este bloco
+                try:
+                    imagens = imagem_service.listar_imagens_bloco(bloco.id)
+                    bloco_dict['imagens'] = imagens
+                except Exception as e:
+                    print(f"Erro ao buscar imagens para bloco {bloco.id}: {e}")
+                    bloco_dict['imagens'] = []
+                
+                lista_blocos.append(bloco_dict)
             
             print("blocos encontrados:", [bloco['id'] for bloco in lista_blocos])
             return lista_blocos, 200 
@@ -48,7 +61,17 @@ class BlocoList(Resource):
         lista_blocos = []
 
         for bloco in blocos:
-            lista_blocos.append(bloco.to_dict())
+            bloco_dict = bloco.to_dict()
+            
+            # Buscar imagens do Supabase para este bloco
+            try:
+                imagens = imagem_service.listar_imagens_bloco(bloco.id)
+                bloco_dict['imagens'] = imagens
+            except Exception as e:
+                print(f"Erro ao buscar imagens para bloco {bloco.id}: {e}")
+                bloco_dict['imagens'] = []
+            
+            lista_blocos.append(bloco_dict)
 
         response = jsonify(lista_blocos)
         response.status_code = 200
@@ -72,8 +95,18 @@ class BlocoGet(Resource):
             response.status_code = 404
             return response
         
-        print("bloco encontrado:", bloco.to_dict())
-        response = jsonify(bloco.to_dict())
+        bloco_dict = bloco.to_dict()
+        
+        # Buscar imagens do Supabase para este bloco
+        try:
+            imagens = imagem_service.listar_imagens_bloco(bloco.id)
+            bloco_dict['imagens'] = imagens
+        except Exception as e:
+            print(f"Erro ao buscar imagens para bloco {bloco.id}: {e}")
+            bloco_dict['imagens'] = []
+        
+        print("bloco encontrado:", bloco_dict)
+        response = jsonify(bloco_dict)
         response.status_code = 200
         return response
     
@@ -110,6 +143,26 @@ class BlocoAtualiza(Resource):
             return response
         
         data = request.form.to_dict()
+        
+        # Processar upload de múltiplas imagens para o Supabase
+        if 'imagens' in request.files:
+            files = request.files.getlist('imagens')
+            for file in files:
+                if file and file.filename != '' and file.filename is not None:
+                    try:
+                        # Upload para o Supabase
+                        arquivo_bytes = file.read()
+                        resultado = imagem_service.upload_imagem(
+                            id_bloco=id,
+                            arquivo_imagem=arquivo_bytes,
+                            nome_arquivo=file.filename,
+                            tipo_mime=file.content_type
+                        )
+                        print(f"Imagem {file.filename} enviada com sucesso: {resultado}")
+                    except Exception as e:
+                        print(f"Erro ao fazer upload da imagem {file.filename}: {e}")
+        
+        # Manter compatibilidade com upload único de imagem local
         if 'imagem' in request.files:
             file = request.files['imagem']
             if file and file.filename != '' and file.filename is not None:
@@ -172,7 +225,7 @@ class BlocoCadastro(Resource):
             # Handle FormData (with file upload)
             data = request.form.to_dict()
             
-            # Handle file upload
+            # Handle file upload (manter compatibilidade com imagem única)
             file_path = None
             if 'imagem' in request.files:
                 file = request.files['imagem']
@@ -241,9 +294,35 @@ class BlocoCadastro(Resource):
             )
             session.add(bloco)
             session.commit()
+            
+            # Obter o ID do bloco recém-criado
+            bloco_id = bloco.id
+            
+            # Processar upload de múltiplas imagens para o Supabase
+            if request.content_type and 'multipart/form-data' in request.content_type:
+                if 'imagens' in request.files:
+                    files = request.files.getlist('imagens')
+                    for file in files:
+                        if file and file.filename != '' and file.filename is not None:
+                            try:
+                                # Upload para o Supabase
+                                arquivo_bytes = file.read()
+                                resultado = imagem_service.upload_imagem(
+                                    id_bloco=bloco_id,
+                                    arquivo_imagem=arquivo_bytes,
+                                    nome_arquivo=file.filename,
+                                    tipo_mime=file.content_type
+                                )
+                                print(f"Imagem {file.filename} enviada com sucesso: {resultado}")
+                            except Exception as e:
+                                print(f"Erro ao fazer upload da imagem {file.filename}: {e}")
+            
             session.close()
 
-            response = jsonify({"message": "Bloco cadastrado com sucesso"})
+            response = jsonify({
+                "message": "Bloco cadastrado com sucesso",
+                "bloco_id": bloco_id
+            })
             response.status_code = 200
             return response
         
