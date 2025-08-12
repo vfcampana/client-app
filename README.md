@@ -1,13 +1,239 @@
 
-# StoneEye
+# 🏗️ BlockAPI - Sistema de Gestão de Blocos de Pedra
 
-Este projeto visa permitir a rastreabilidade de um bloco de rocha ornamental, desde o momento de sua lavra
-até seu processamento e comercialização. Com esse objetivo, visa-se a construção de um sistema (no formato de aplicação web).
+Sistema completo para gestão de blocos de pedra com backend Flask, frontend React e integração com Supabase para armazenamento de imagens.
 
-O sistema conta com 2 "agentes", clientes - nossos usuários, que são empresas no ramo de blocos ornamentais, e a administração - Mogai, que controla os aspectos do usuário (se está inativo, cria as contas, entre outros).
+## 📋 Índice
 
-As principais funções do sistema são: permitir que um usuário autenticar-se no sistema, manipular seus blocos 
-(adicionar, inativar, editar), ver blocos anunciados e negociar com os anunciantes.
+- [Visão Geral](#visão-geral)
+- [Tecnologias](#tecnologias)
+- [Pré-requisitos](#pré-requisitos)
+- [Instalação](#instalação)
+- [Configuração](#configuração)
+- [Execução](#execução)
+- [Estrutura do Projeto](#estrutura-do-projeto)
+- [API Endpoints](#api-endpoints)
+- [Funcionalidades](#funcionalidades)
+- [Troubleshooting](#troubleshooting)
+
+## 🎯 Visão Geral
+
+O BlockAPI é uma plataforma para gestão de blocos de pedra que permite:
+- ✅ Cadastro e gestão de blocos com múltiplas imagens
+- ✅ Sistema de autenticação e autorização
+- ✅ Upload de imagens via galeria ou câmera
+- ✅ Criação e gestão de lotes
+- ✅ Sistema de favoritos
+- ✅ Chat entre usuários
+- ✅ Interface responsiva (mobile/desktop)
+
+## 🛠️ Tecnologias
+
+### Backend
+- **Flask** - Framework web Python
+- **PostgreSQL** - Banco de dados principal
+- **Supabase** - Storage para imagens
+- **JWT** - Autenticação
+- **Flask-CORS** - Controle de acesso
+
+### Frontend
+- **React + TypeScript** - Interface do usuário
+- **Material-UI** - Componentes visuais
+- **React Query** - Gerenciamento de estado
+- **Axios** - Cliente HTTP
+
+## 📋 Pré-requisitos
+
+- **Python 3.8+**
+- **Node.js 16+** e **npm**
+- **PostgreSQL** (ou acesso ao banco remoto)
+- **Git**
+
+## 🚀 Instalação
+
+### 1. Clone o repositório
+```bash
+git clone https://github.com/vfcampana/client-app.git
+cd client-app
+```
+
+### 2. Configuração do Backend
+
+#### Criar ambiente virtual Python
+```bash
+# Windows
+python -m venv venv
+venv\Scripts\activate
+
+# Linux/Mac
+python3 -m venv venv
+source venv/bin/activate
+```
+
+#### Instalar dependências Python
+```bash
+pip install -r requirements.txt
+```
+
+### 3. Configuração do Frontend
+Tem que instalar o NODE pelo google
+
+```bash
+cd front-app
+npm install
+```
+
+## ⚙️ Configuração
+
+### 1. Variáveis de Ambiente
+
+Crie ou configure o arquivo `.env` na raiz do projeto:
+
+```env
+DATABASE_URL=postgresql://usuario:senha@host:porta/database?sslmode=require
+
+SUPABASE_URL=https://seu-projeto.supabase.co
+SUPABASE_KEY=sua_chave_publica_supabase
+
+Pedir chaves de conexão para Enzo Hubner. É possivel que no momento em que voce rodar o projeto os banco de dados estejam desligados, então peça que seja conferido!
+```
+
+### 2. Configuração do Frontend
+
+Crie o arquivo `front-app/.env`:
+
+```env
+REACT_APP_BACKEND_URL=http://localhost:5000
+```
+
+## 🏃‍♂️ Execução
+
+### 1. Iniciar Backend
+
+```bash
+# Na raiz do projeto, com ambiente virtual ativado
+cd blockapi
+python app.py
+```
+
+O backend estará disponível em: `http://localhost:5000`
+
+### 2. Iniciar Frontend
+
+```bash
+# Em outro terminal
+cd front-app
+npm start
+```
+
+O frontend estará disponível em: `http://localhost:3000`
+
+## 📁 Estrutura do Projeto
+
+```
+client-app/
+├── blockapi/                 # Backend Flask
+│   ├── api/                  # Endpoints da API
+│   │   ├── resources/        # Recursos REST
+│   │   └── views.py          # Views principais
+│   ├── models/               # Modelos do banco
+│   ├── scripts/              # Scripts utilitários
+│   ├── sql/                  # Scripts SQL
+│   └── app.py               # Aplicação principal
+│
+├── front-app/               # Frontend React
+│   ├── src/
+│   │   ├── components/      # Componentes reutilizáveis
+│   │   ├── pages/          # Páginas da aplicação
+│   │   ├── services/       # Serviços de API
+│   │   ├── types/          # Tipos TypeScript
+│   │   └── styles/         # Estilos e temas
+│   └── public/             # Arquivos públicos
+│
+├── tests/                  # Testes
+├── requirements.txt        # Dependências Python
+├── .env                    # Variáveis de ambiente
+└── README.md              # Este arquivo
+```
+
+## ✨ Funcionalidades
+
+### 📷 Upload de Imagens
+- **Galeria**: Seleção múltipla de imagens
+- **Câmera**: Captura direta (mobile/desktop)
+- **Preview**: Carrossel de visualização
+- **Storage**: Armazenamento no Supabase
+
+### 🗂️ Gestão de Blocos
+- Cadastro completo com informações técnicas
+- Sistema de status (privado/anunciado)
+- Múltiplas imagens por bloco
+- Filtros e busca
+
+### 📦 Sistema de Lotes
+- Agrupamento de blocos
+- Gestão centralizada
+- Preços por lote
+
+### 🔐 Autenticação
+- JWT tokens
+- Controle de acesso
+- Sessões persistentes
+
+## 🐛 Troubleshooting
+
+### Backend não inicia
+```bash
+# Verificar se o ambiente virtual está ativo
+which python  # deve apontar para venv
+
+# Reinstalar dependências
+pip install -r requirements.txt
+
+# Verificar variáveis de ambiente
+python -c "from dotenv import load_dotenv; load_dotenv(); import os; print(os.getenv('DATABASE_URL'))"
+```
+
+### Frontend não carrega
+```bash
+# Limpar cache e reinstalar
+rm -rf node_modules package-lock.json
+npm install
+
+# Verificar porta
+lsof -i :3000  # verificar se porta está ocupada
+```
+
+### Erro de CORS
+Verifique se o `flask-cors` está instalado e configurado no `app.py`:
+```python
+from flask_cors import CORS
+CORS(app)
+```
+
+### Imagens não aparecem
+1. Verificar configuração do Supabase
+2. Verificar políticas de acesso no Supabase
+3. Verificar console do navegador para erros
+
+### Erro de autenticação
+```bash
+# Verificar JWT_SECRET_KEY no .env
+# Limpar localStorage do navegador
+localStorage.clear()
+```
+
+## 📝 Notas de Desenvolvimento
+
+- O projeto usa PostgreSQL como banco principal
+- Imagens são armazenadas no Supabase Storage
+- Frontend e backend rodam em portas separadas
+- CORS está habilitado para desenvolvimento
+- JWT tokens têm expiração configurável
+
+---
+
+🚀 **Projeto desenvolvido com Flask + React + TypeScript + Supabase**
 
 As tecnologias escolhidas para o sistema foram: React.js (front), Flask (back), PostgreSQL (banco de dados). 
 Estão sujeitas a alterações conforme necessidade do projeto. 
