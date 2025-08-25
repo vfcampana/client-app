@@ -1,5 +1,5 @@
 from dotenv import load_dotenv
-from flask import request, jsonify, current_app
+from flask import request, current_app
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from flask_socketio import SocketIO

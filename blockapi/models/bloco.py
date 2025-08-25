@@ -1,7 +1,6 @@
 from sqlalchemy import Column, Integer, String, Float, Date, ForeignKey
 from models.base import Base
 from datetime import datetime, date
-from sqlalchemy.orm import relationship
 
 class Bloco(Base):
     __tablename__ = 'bloco'
@@ -27,7 +26,54 @@ class Bloco(Base):
     id_usuario = Column(Integer, ForeignKey('usuario.id'))
     status = Column(String, nullable=False)
     imagem = Column(String, nullable=False)
-    favoritos = relationship("Favorito", back_populates="bloco")
+    blockchain_uid = Column(String, nullable=True)  # UID do bloco na blockchain
+    
+    # Propriedades para compatibilidade com blockchain
+    @property
+    def nome(self):
+        return self.titulo
+    
+    @property
+    def cor(self):
+        return self.coloracao
+    
+    @property
+    def largura(self):
+        # Extrair largura das medidas (assumindo formato "LxAxP")
+        try:
+            medidas = self.medida_bruta.split('x')
+            return float(medidas[0]) if len(medidas) >= 1 else 0
+        except:
+            return 0
+    
+    @property
+    def altura(self):
+        # Extrair altura das medidas
+        try:
+            medidas = self.medida_bruta.split('x')
+            return float(medidas[1]) if len(medidas) >= 2 else 0
+        except:
+            return 0
+    
+    @property
+    def profundidade(self):
+        # Extrair profundidade das medidas
+        try:
+            medidas = self.medida_bruta.split('x')
+            return float(medidas[2]) if len(medidas) >= 3 else 0
+        except:
+            return 0
+    
+    @property
+    def peso(self):
+        # Calcular peso aproximado baseado no volume
+        try:
+            # Volume em m³ * densidade aproximada do material (2.5 t/m³ para granito)
+            volume_str = self.volume_bruto.replace('m³', '').replace(',', '.')
+            volume = float(volume_str)
+            return volume * 2500  # kg
+        except:
+            return 0
 
     def to_dict(self):
         result = {}

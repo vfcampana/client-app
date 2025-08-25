@@ -230,7 +230,48 @@ class ConversaMessages(Resource):
                     response.status_code = 404
                     return response
                 
-                # Criar mensagem
+                # Verificar se é uma aceitação de proposta
+                texto_upper = texto.upper().strip()
+                if texto_upper in ['ACEITO', 'ACEITAR', 'OK', 'SIM', 'CONFIRMADO']:
+                    # Buscar última proposta na conversa
+                    ultima_proposta = session.query(Mensagem).filter(
+                        and_(
+                            Mensagem.conversa_id == conversa_id,
+                            Mensagem.tipo == 'proposta_venda',
+                            Mensagem.proposta_status == 'pendente'
+                        )
+                    ).order_by(Mensagem.data_envio.desc()).first()
+                    
+                    if ultima_proposta and ultima_proposta.usuario_id != user_id:
+                        # Processar aceitação via blockchain
+                        try:
+                            from blockchain.chat_service import blockchain_chat_service
+                            resultado = blockchain_chat_service.processar_aceitacao_proposta(
+                                session=session,
+                                conversa_id=conversa_id,
+                                comprador_id=int(user_id),
+                                mensagem_proposta_id=ultima_proposta.id
+                            )
+                            
+                            if resultado['success']:
+                                # Marcar proposta como aceita
+                                ultima_proposta.proposta_status = 'aceita'
+                                session.commit()
+                                
+                                response = jsonify({
+                                    'message': 'Proposta aceita e processada!',
+                                    'blockchain_result': resultado
+                                })
+                                response.status_code = 201
+                                return response
+                            else:
+                                # Mesmo se blockchain falhar, continuar com mensagem normal
+                                pass
+                        except Exception as e:
+                            print(f"Erro ao processar blockchain: {e}")
+                            # Continuar com mensagem normal se blockchain falhar
+                
+                # Criar mensagem normal
                 mensagem = Mensagem(
                     conversa_id=conversa_id,
                     usuario_id=user_id,
@@ -249,9 +290,8 @@ class ConversaMessages(Resource):
                 
                 # Commit e refresh para garantir que o ID esteja disponível
                 session.commit()
-                session.refresh(mensagem)  # CORREÇÃO: Atualizar o objeto
+                session.refresh(mensagem)
                 
-                # Agora é seguro acessar o ID
                 mensagem_id = mensagem.id
                 
                 response = jsonify({'message': 'Mensagem enviada', 'id': mensagem_id})

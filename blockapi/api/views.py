@@ -6,6 +6,11 @@ from api.resources.anuncio import AnuncioList, AnuncioGet, AnuncioDelete, Anunci
 from api.resources.lote import LoteList, LoteGet, LoteDelete, LoteAtualiza, LoteCadastro
 from api.resources.chat import ConversasList, ConversaMessages, IniciarConversa
 from api.resources.favorito import FavoritoPost, FavoritoGet, FavoritoDelete
+from api.resources.blockchain import (
+    BlockchainStatus, BlockchainUserRegister, BlockchainUserCheck,
+    BlockchainSaleProposal, BlockchainSaleAccept, BlockchainTransferCheck,
+    BlockchainContractInfo
+)
 
 api_bp = Blueprint('api', __name__)
 
@@ -58,4 +63,13 @@ api.add_resource(LoteCadastro, '/lote')
 api.add_resource(ConversasList, '/conversas')
 api.add_resource(ConversaMessages, '/conversas/<int:conversa_id>/mensagens')
 api.add_resource(IniciarConversa, '/iniciar-conversa')
+
+# Rotas de Blockchain
+api.add_resource(BlockchainStatus, '/blockchain/status')
+api.add_resource(BlockchainContractInfo, '/blockchain/contract')
+api.add_resource(BlockchainUserRegister, '/blockchain/user/register')
+api.add_resource(BlockchainUserCheck, '/blockchain/user/check', '/blockchain/user/check/<int:user_id>')
+api.add_resource(BlockchainSaleProposal, '/blockchain/sale/proposal')
+api.add_resource(BlockchainSaleAccept, '/blockchain/sale/accept')
+api.add_resource(BlockchainTransferCheck, '/blockchain/transfer/check')
 
