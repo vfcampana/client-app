@@ -1,8 +1,8 @@
 import { Box, Paper, Typography, Chip, IconButton, Skeleton, Checkbox, Tabs, Tab, Dialog, DialogTitle, DialogContent, DialogActions, TextField, FormControl, FormLabel, RadioGroup, FormControlLabel, Radio } from '@mui/material';
-import { VisibilityOutlined, EditOutlined, ArchiveOutlined, CalendarTodayOutlined, AttachMoneyOutlined, Delete, Group, LocalOffer, Visibility, VisibilityOff } from '@mui/icons-material';
+import { VisibilityOutlined, EditOutlined, DeleteOutlined, CalendarTodayOutlined, AttachMoneyOutlined, Delete, Group, LocalOffer, Visibility, VisibilityOff } from '@mui/icons-material';
 import StyledButton from '../StyledButton';
-import { fetchBlocks } from '../../services/blocks';
-import { useQuery } from '@tanstack/react-query';
+import { fetchBlocks, deleteBlock } from '../../services/blocks';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 import BlockModal from './BlockDetails';
 import { Block } from '../../types/Blocks';
@@ -11,10 +11,12 @@ import { useNavigate } from 'react-router-dom';
 import CreateLoteModal from '../lotes/CreateLoteModal';
 import { useLotes, useDeleteLote, useUpdateLote } from '../../hooks/useLotes';
 import LoteDetails from '../lotes/LoteDetails';
+import ImageCarousel from '../ImageCarousel';
 
 const stoneImageExample = require('../../assets/stone.png') as string;
 
 const MyBlocks = () => {
+  const queryClient = useQueryClient();
   const { data: blocks, isLoading: blocksLoading } = useQuery({
     queryKey: ['blocos'],
     queryFn: fetchBlocks,
@@ -23,6 +25,14 @@ const MyBlocks = () => {
   const { data: lotes, isLoading: lotesLoading } = useLotes();
   const deleteLoteMutation = useDeleteLote();
   const updateLoteMutation = useUpdateLote();
+  
+  // Mutation para deletar bloco
+  const deleteBlockMutation = useMutation({
+    mutationFn: deleteBlock,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['blocos'] });
+    },
+  });
   
   const [chosenBlock, setChosenBlock] = useState<Block>();
   const [open, setOpen] = useState(false);
@@ -37,6 +47,10 @@ const MyBlocks = () => {
   //Função para abrir o modal de detalhes do bloco
   const [viewingLote, setViewingLote] = useState<any>(null);
   const [showViewModal, setShowViewModal] = useState(false);
+  
+  // Estados para visualização de bloco
+  const [viewingBlock, setViewingBlock] = useState<Block | null>(null);
+  const [showViewBlockModal, setShowViewBlockModal] = useState(false);
 
   // Estados para editar lote
   const [editingLote, setEditingLote] = useState<any>(null);
@@ -88,6 +102,11 @@ const MyBlocks = () => {
     setShowViewModal(true);
   };
 
+  const handleViewBlock = (block: Block) => {
+    setViewingBlock(block);
+    setShowViewBlockModal(true);
+  };
+
   // Função para alternar seleção de bloco
   const handleBlockSelection = (blockId: number) => {
     setSelectedBlocks(prev => 
@@ -99,6 +118,19 @@ const MyBlocks = () => {
 
   const handleEditBlock = (block: Block) => {
     navigate(`/blocks/${block.id}/edit`);
+  };
+
+  // Função para deletar bloco
+  const handleDeleteBlock = async (blockId: number) => {
+    if (window.confirm('Tem certeza que deseja excluir este bloco? Esta ação não pode ser desfeita.')) {
+      try {
+        await deleteBlockMutation.mutateAsync(blockId);
+        alert('Bloco excluído com sucesso!');
+      } catch (error) {
+        console.error('Erro ao excluir bloco:', error);
+        alert('Erro ao excluir bloco. Tente novamente.');
+      }
+    }
   };
 
   // Função para criar lote
@@ -384,7 +416,7 @@ const MyBlocks = () => {
                         {!isSelectionMode && (
                           <Box sx={{ display: 'flex', gap: 1 }}>
                             <IconButton
-                              onClick={() => navigate(`/blocks/${block.id}`)}
+                              onClick={() => handleViewBlock(block)}
                               sx={{
                                 backgroundColor: 'rgba(255,255,255,0.15)',
                                 color: 'white',
@@ -410,15 +442,19 @@ const MyBlocks = () => {
                             </IconButton>
                             
                             <IconButton
+                              onClick={() => handleDeleteBlock(block.id)}
                               sx={{
-                                backgroundColor: 'rgba(255,255,255,0.15)',
-                                color: 'white',
-                                border: '1px solid rgba(255,255,255,0.2)',
+                                backgroundColor: 'rgba(244, 67, 54, 0.15)',
+                                color: '#f44336',
+                                border: '1px solid rgba(244, 67, 54, 0.2)',
                                 borderRadius: 2,
-                                '&:hover': { backgroundColor: 'rgba(255,255,255,0.25)' }
+                                '&:hover': { 
+                                  backgroundColor: 'rgba(244, 67, 54, 0.25)',
+                                  borderColor: 'rgba(244, 67, 54, 0.4)'
+                                }
                               }}
                             >
-                              <ArchiveOutlined fontSize="small" />
+                              <DeleteOutlined fontSize="small" />
                             </IconButton>
                           </Box>
                         )}
@@ -427,34 +463,53 @@ const MyBlocks = () => {
 
                     {/* Conteúdo do Card de Bloco */}
                     <Box sx={{ 
-                      padding: { xs: 2, md: 3 },
+                      padding: { xs: 2, sm: 2.5, md: 3 },
                       display: 'flex',
-                      flexDirection: { xs: 'column', md: 'row' },
-                      gap: 3,
-                      alignItems: { xs: 'center', md: 'flex-start' }
+                      flexDirection: { xs: 'column', lg: 'row' },
+                      gap: { xs: 2, sm: 2.5, md: 3 },
+                      alignItems: { xs: 'stretch', lg: 'flex-start' }
                     }}>
                       <Box sx={{ 
                         flex: 1,
                         display: 'flex',
                         flexDirection: 'column',
-                        gap: 2,
-                        width: { xs: '100%', md: 'auto' }
+                        gap: { xs: 1.5, sm: 2 },
+                        width: { xs: '100%', lg: 'auto' },
+                        minWidth: 0 // Permite que o conteúdo seja truncado se necessário
                       }}>
                         <Box sx={{
                           display: 'flex',
                           alignItems: 'center',
                           gap: 1.5,
-                          padding: 2,
+                          padding: { xs: 1.5, sm: 2 },
                           backgroundColor: '#f8fafc',
                           borderRadius: 2,
                           border: '1px solid #e2e8f0'
                         }}>
-                          <CalendarTodayOutlined sx={{ color: '#001f2e', fontSize: 20 }} />
-                          <Box>
-                            <Typography variant="body2" color="#6b7280" sx={{ fontSize: '0.75rem', fontWeight: 500 }}>
+                          <CalendarTodayOutlined sx={{ 
+                            color: '#001f2e', 
+                            fontSize: { xs: 18, sm: 20 },
+                            flexShrink: 0 
+                          }} />
+                          <Box sx={{ minWidth: 0 }}>
+                            <Typography 
+                              variant="body2" 
+                              color="#6b7280" 
+                              sx={{ 
+                                fontSize: { xs: '0.7rem', sm: '0.75rem' }, 
+                                fontWeight: 500 
+                              }}
+                            >
                               DATA DE REGISTRO
                             </Typography>
-                            <Typography variant="body1" sx={{ fontWeight: 600, color: '#374151' }}>
+                            <Typography 
+                              variant="body1" 
+                              sx={{ 
+                                fontWeight: 600, 
+                                color: '#374151',
+                                fontSize: { xs: '0.875rem', sm: '1rem' }
+                              }}
+                            >
                               {block.data_criacao}
                             </Typography>
                           </Box>
@@ -492,20 +547,28 @@ const MyBlocks = () => {
                         border: '3px solid #001f2e',
                         backgroundColor: '#f8fafc'
                       }}>
-                        <img
-                          src={block.imagem || stoneImageExample}
-                          alt={`Imagem do bloco ${block.titulo}`}
-                          style={{
-                            width: '100%',
-                            height: '100%',
-                            objectFit: 'cover',
-                            display: 'block'
-                          }}
-                          onError={(e) => {
-                            const target = e.target as HTMLImageElement;
-                            target.src = stoneImageExample;
-                          }}
-                        />
+                        {/* Usar carrossel se houver imagens, senão usar imagem padrão */}
+                        {block.imagens && block.imagens.length > 0 ? (
+                          <ImageCarousel 
+                            imagens={block.imagens} 
+                            showDeleteButton={false}
+                          />
+                        ) : (
+                          <img
+                            src={block.imagem || stoneImageExample}
+                            alt={`Imagem do bloco ${block.titulo}`}
+                            style={{
+                              width: '100%',
+                              height: '100%',
+                              objectFit: 'cover',
+                              display: 'block'
+                            }}
+                            onError={(e) => {
+                              const target = e.target as HTMLImageElement;
+                              target.src = stoneImageExample;
+                            }}
+                          />
+                        )}
                       </Box>
                     </Box>
                   </Paper>
@@ -883,6 +946,189 @@ const MyBlocks = () => {
               Salvar
             </StyledButton>
           </DialogActions>
+        </Dialog>
+        
+        {/* Modal de Visualização de Bloco */}
+        <Dialog
+          open={showViewBlockModal}
+          onClose={() => setShowViewBlockModal(false)}
+          maxWidth="md"
+          fullWidth
+          PaperProps={{
+            sx: {
+              borderRadius: 3,
+              maxHeight: '90vh',
+              overflow: 'hidden'
+            }
+          }}
+        >
+          {viewingBlock && (
+            <>
+              {/* Header */}
+              <Box sx={{
+                background: '#0d1b2a',
+                color: 'white',
+                padding: 3,
+              }}>
+                <Typography variant="h5" component="h2" sx={{ fontWeight: 700, mb: 2 }}>
+                  {viewingBlock.titulo}
+                </Typography>
+                
+                <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+                  <Chip
+                    icon={<AttachMoneyOutlined />}
+                    label={`R$ ${viewingBlock.valor}`}
+                    sx={{
+                      backgroundColor: 'rgba(255,255,255,0.15)',
+                      color: 'white',
+                      border: '1px solid rgba(255,255,255,0.2)',
+                    }}
+                  />
+                  <Chip
+                    icon={<CalendarTodayOutlined />}
+                    label={new Date(viewingBlock.data_criacao).toLocaleDateString('pt-BR')}
+                    sx={{
+                      backgroundColor: 'rgba(255,255,255,0.15)',
+                      color: 'white',
+                      border: '1px solid rgba(255,255,255,0.2)',
+                    }}
+                  />
+                </Box>
+              </Box>
+
+              {/* Conteúdo */}
+              <DialogContent sx={{ p: 0 }}>
+                <Box sx={{ p: 3 }}>
+                  {/* Imagens */}
+                  <Box sx={{ 
+                    mb: 3,
+                    height: 300,
+                    borderRadius: 2,
+                    overflow: 'hidden',
+                    border: '2px solid #e0e0e0'
+                  }}>
+                    {viewingBlock.imagens && viewingBlock.imagens.length > 0 ? (
+                      <ImageCarousel 
+                        imagens={viewingBlock.imagens} 
+                        showDeleteButton={false}
+                      />
+                    ) : (
+                      <Box sx={{
+                        width: '100%',
+                        height: '100%',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        backgroundColor: '#f5f5f5'
+                      }}>
+                        <img 
+                          src={stoneImageExample} 
+                          alt="Imagem padrão"
+                          style={{
+                            width: '100%',
+                            height: '100%',
+                            objectFit: 'cover'
+                          }}
+                        />
+                      </Box>
+                    )}
+                  </Box>
+
+                  {/* Informações do Bloco */}
+                  <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' }, gap: 3 }}>
+                    <Paper sx={{ p: 2, backgroundColor: '#f8fafc' }}>
+                      <Typography variant="h6" sx={{ fontWeight: 600, mb: 2, color: '#0d1b2a' }}>
+                        Informações Básicas
+                      </Typography>
+                      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                        <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                          <Typography variant="body2" color="text.secondary">Material:</Typography>
+                          <Typography variant="body2" sx={{ fontWeight: 500 }}>{viewingBlock.material}</Typography>
+                        </Box>
+                        <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                          <Typography variant="body2" color="text.secondary">Classificação:</Typography>
+                          <Typography variant="body2" sx={{ fontWeight: 500 }}>{viewingBlock.classificacao}</Typography>
+                        </Box>
+                        <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                          <Typography variant="body2" color="text.secondary">Coloração:</Typography>
+                          <Typography variant="body2" sx={{ fontWeight: 500 }}>{viewingBlock.coloracao}</Typography>
+                        </Box>
+                        <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                          <Typography variant="body2" color="text.secondary">Pedreira:</Typography>
+                          <Typography variant="body2" sx={{ fontWeight: 500 }}>{viewingBlock.pedreira}</Typography>
+                        </Box>
+                      </Box>
+                    </Paper>
+
+                    <Paper sx={{ p: 2, backgroundColor: '#f0fdf4' }}>
+                      <Typography variant="h6" sx={{ fontWeight: 600, mb: 2, color: '#0d1b2a' }}>
+                        Medidas
+                      </Typography>
+                      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                        <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                          <Typography variant="body2" color="text.secondary">Medida Bruta:</Typography>
+                          <Typography variant="body2" sx={{ fontWeight: 500 }}>{viewingBlock.medida_bruta}</Typography>
+                        </Box>
+                        <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                          <Typography variant="body2" color="text.secondary">Volume Bruto:</Typography>
+                          <Typography variant="body2" sx={{ fontWeight: 500 }}>{viewingBlock.volume_bruto}</Typography>
+                        </Box>
+                        <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                          <Typography variant="body2" color="text.secondary">Medida Líquida:</Typography>
+                          <Typography variant="body2" sx={{ fontWeight: 500 }}>{viewingBlock.medida_liquida}</Typography>
+                        </Box>
+                        <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                          <Typography variant="body2" color="text.secondary">Volume Líquido:</Typography>
+                          <Typography variant="body2" sx={{ fontWeight: 500 }}>{viewingBlock.volume_liquido}</Typography>
+                        </Box>
+                      </Box>
+                    </Paper>
+                  </Box>
+
+                  {/* Localização */}
+                  {viewingBlock.cidade && (
+                    <Paper sx={{ p: 2, mt: 3, backgroundColor: '#fef3f2' }}>
+                      <Typography variant="h6" sx={{ fontWeight: 600, mb: 2, color: '#0d1b2a' }}>
+                        Localização
+                      </Typography>
+                      <Typography variant="body2">
+                        {viewingBlock.logradouro && `${viewingBlock.logradouro}, `}
+                        {viewingBlock.cidade}, {viewingBlock.estado}, {viewingBlock.pais}
+                        {viewingBlock.cep && ` - CEP: ${viewingBlock.cep}`}
+                      </Typography>
+                    </Paper>
+                  )}
+
+                  {/* Observações */}
+                  {viewingBlock.observacoes && (
+                    <Paper sx={{ p: 2, mt: 3, backgroundColor: '#fffbeb' }}>
+                      <Typography variant="h6" sx={{ fontWeight: 600, mb: 2, color: '#0d1b2a' }}>
+                        Observações
+                      </Typography>
+                      <Typography variant="body2">
+                        {viewingBlock.observacoes}
+                      </Typography>
+                    </Paper>
+                  )}
+                </Box>
+              </DialogContent>
+
+              <DialogActions sx={{ p: 3, gap: 2 }}>
+                <StyledButton 
+                  onClick={() => setShowViewBlockModal(false)}
+                  sx={{
+                    color: '#666',
+                    borderColor: '#e0e0e0',
+                    '&:hover': {
+                      backgroundColor: '#f5f5f5',
+                    },
+                  }}
+                >
+                  Fechar
+                </StyledButton>
+              </DialogActions>
+            </>
+          )}
         </Dialog>
       </Box>
     </div>

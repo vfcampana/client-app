@@ -47,7 +47,6 @@ export default function Navbar() {
         { icon: <HomeIcon />, label: 'Home', route: '/home' },
         { icon: <StarIcon />, label: 'Favoritos', route: '/favorites' },
         { icon: <ViewInArIcon />, label: 'Meus Blocos', route: '/blocks' },
-        { icon: <BusinessIcon />, label: 'Meus Lotes', route: '/lotes' },
         { icon: <ChatIcon />, label: 'Chat', route: '/chat' },
         { icon: <LogOutIcon />, label: 'Sair', action: handleExit },
     ];

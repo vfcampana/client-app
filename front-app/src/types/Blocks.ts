@@ -1,5 +1,6 @@
 export interface Block {
   imagem: string;
+  imagens?: ImagemBloco[]; // Nova propriedade para múltiplas imagens do Supabase
   id: number;
   titulo: string;
   classificacao: string;
@@ -21,4 +22,16 @@ export interface Block {
   estado: string;
   id_usuario: number;
   status: string;
+}
+
+export interface ImagemBloco {
+  id: string;
+  id_bloco: number;
+  url_imagem: string;
+  nome_arquivo: string;
+  tamanho_arquivo?: number;
+  tipo_mime?: string;
+  data_upload: string;
+  data_atualizacao: string;
+  ativo: boolean;
 }

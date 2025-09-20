@@ -21,6 +21,7 @@ import {
 } from "@mui/icons-material";
 import { useTheme } from "@mui/material/styles";
 import { useNavigate } from "react-router-dom";
+import ImageCarousel from '../ImageCarousel';
 
 export default function BlockDetailsPage({ 
   block, 
@@ -94,14 +95,31 @@ export default function BlockDetailsPage({
 
       {/* Cartão de imagem */}
       <Card sx={{ mb: 3, overflow: "hidden" }}>
-        <Box sx={{ position: "relative" }}>
-          <CardMedia
-            component="img"
-            height="300"
-            image={block.imagem || "assets/stone.png"} 
-            alt={block.titulo}
-            sx={{ objectFit: "cover" }}
-          />
+        <Box sx={{ 
+          position: "relative", 
+          height: { xs: 250, sm: 300, md: 400 },
+          width: "100%"
+        }}>
+          {block.imagens && block.imagens.length > 0 ? (
+            <Box sx={{ height: "100%", width: "100%" }}>
+              <ImageCarousel 
+                imagens={block.imagens} 
+                showDeleteButton={false}
+              />
+            </Box>
+          ) : (
+            <CardMedia
+              component="img"
+              height="100%"
+              image="assets/stone.png" 
+              alt={block.titulo}
+              sx={{ 
+                objectFit: "cover",
+                width: "100%",
+                height: "100%"
+              }}
+            />
+          )}
         </Box>
       </Card>
 
