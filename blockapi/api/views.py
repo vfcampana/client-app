@@ -9,7 +9,7 @@ from api.resources.favorito import FavoritoPost, FavoritoGet, FavoritoDelete
 from api.resources.blockchain import (
     BlockchainStatus, BlockchainUserRegister, BlockchainUserCheck,
     BlockchainSaleProposal, BlockchainSaleAccept, BlockchainTransferCheck,
-    BlockchainContractInfo
+    BlockchainContractInfo, BlockchainSale
 )
 
 api_bp = Blueprint('api', __name__)
@@ -72,4 +72,5 @@ api.add_resource(BlockchainUserCheck, '/blockchain/user/check', '/blockchain/use
 api.add_resource(BlockchainSaleProposal, '/blockchain/sale/proposal')
 api.add_resource(BlockchainSaleAccept, '/blockchain/sale/accept')
 api.add_resource(BlockchainTransferCheck, '/blockchain/transfer/check')
+api.add_resource(BlockchainSale, '/blockchain/vendas')
 

@@ -1,0 +1,2 @@
+// ImageCarousel component - placeholder
+export {};

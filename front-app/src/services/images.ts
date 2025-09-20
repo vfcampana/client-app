@@ -1,0 +1,2 @@
+// Images service - placeholder
+export {};
