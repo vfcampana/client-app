@@ -1,0 +1,9 @@
+.env
+.idea/
+venv/
+build/
+__pycache__/
+scm_config/logs/
+scm_config/tests/
+scm_config/scm_config.json
+src/scmanager.egg-info/

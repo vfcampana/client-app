@@ -1,0 +1,18 @@
+[run]
+source = ./src
+data_file = src/tests/coverage/.coverage
+omit =
+    src/__init__.py
+    src/scmanager/__init__.py
+    src/scmanager/admin_tools/__init__.py
+    src/scmanager/examples/*
+    src/scmanager/exceptions.py
+    src/tests/__init__.py
+    src/tests/utils/*
+
+[report]
+exclude_lines =
+    pragma: no cover
+
+[html]
+directory = ./src/tests/coverage/report
