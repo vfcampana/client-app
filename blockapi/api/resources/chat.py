@@ -51,14 +51,8 @@ class ConversasList(Resource):
                     conversa_id=conversa.id
                 ).order_by(Mensagem.data_envio.desc()).first()
                 
-                # Contar mensagens não lidas
-                mensagens_nao_lidas = session.query(Mensagem).filter(
-                    and_(
-                        Mensagem.conversa_id == conversa.id,
-                        Mensagem.usuario_id != user_id,
-                        Mensagem.lida == False
-                    )
-                ).count()
+                # Contar mensagens (simplificado - sem funcionalidade "lida")
+                mensagens_nao_lidas = 0
                 
                 # Montar resultado - CORRIGIDO: sem usar relacionamentos
                 conversa_data = {
@@ -146,15 +140,8 @@ class ConversaMessages(Resource):
                 conversa_id=conversa_id
             ).order_by(Mensagem.data_envio.asc()).all()
             
-            # Marcar mensagens como lidas
-            session.query(Mensagem).filter(
-                and_(
-                    Mensagem.conversa_id == conversa_id,
-                    Mensagem.usuario_id != user_id,
-                    Mensagem.lida == False
-                )
-            ).update({'lida': True})
-            session.commit()
+            # Funcionalidade "marcar como lida" removida temporariamente
+            # (campo 'lida' não existe na tabela atual)
             
             result = []
             for msg in mensagens:
@@ -172,7 +159,7 @@ class ConversaMessages(Resource):
                         'nome': usuario_msg.nome if usuario_msg else 'Usuário'
                     },
                     'lida': msg.lida,
-                    'proposta_valor': str(msg.proposta_valor) if msg.proposta_valor else None,
+                    'proposta_valor': msg.proposta_valor,
                     'proposta_status': msg.proposta_status
                 })
             
@@ -201,10 +188,13 @@ class ConversaMessages(Resource):
             
             user_id = str(id_usuario['message'])
             data = request.get_json()
+            print(f"Dados recebidos para enviar mensagem: {data}")
             
             texto = data.get('texto')
             tipo = data.get('tipo', 'texto')
-            proposta_valor = data.get('proposta_valor')
+            # proposta_valor não é suportado na tabela atual
+            
+            print(f"Enviando mensagem - conversa_id: {conversa_id}, user_id: {user_id}, tipo: {tipo}")
             
             if not texto:
                 response = jsonify({'message': 'Texto da mensagem é obrigatório'})
@@ -230,46 +220,8 @@ class ConversaMessages(Resource):
                     response.status_code = 404
                     return response
                 
-                # Verificar se é uma aceitação de proposta
-                texto_upper = texto.upper().strip()
-                if texto_upper in ['ACEITO', 'ACEITAR', 'OK', 'SIM', 'CONFIRMADO']:
-                    # Buscar última proposta na conversa
-                    ultima_proposta = session.query(Mensagem).filter(
-                        and_(
-                            Mensagem.conversa_id == conversa_id,
-                            Mensagem.tipo == 'proposta_venda',
-                            Mensagem.proposta_status == 'pendente'
-                        )
-                    ).order_by(Mensagem.data_envio.desc()).first()
-                    
-                    if ultima_proposta and ultima_proposta.usuario_id != user_id:
-                        # Processar aceitação via blockchain
-                        try:
-                            from blockchain.chat_service import blockchain_chat_service
-                            resultado = blockchain_chat_service.processar_aceitacao_proposta(
-                                session=session,
-                                conversa_id=conversa_id,
-                                comprador_id=int(user_id),
-                                mensagem_proposta_id=ultima_proposta.id
-                            )
-                            
-                            if resultado['success']:
-                                # Marcar proposta como aceita
-                                ultima_proposta.proposta_status = 'aceita'
-                                session.commit()
-                                
-                                response = jsonify({
-                                    'message': 'Proposta aceita e processada!',
-                                    'blockchain_result': resultado
-                                })
-                                response.status_code = 201
-                                return response
-                            else:
-                                # Mesmo se blockchain falhar, continuar com mensagem normal
-                                pass
-                        except Exception as e:
-                            print(f"Erro ao processar blockchain: {e}")
-                            # Continuar com mensagem normal se blockchain falhar
+                # Funcionalidade de aceitação de proposta desabilitada temporariamente
+                # (requer campos proposta_valor e proposta_status na tabela mensagens)
                 
                 # Criar mensagem normal
                 mensagem = Mensagem(
@@ -277,10 +229,7 @@ class ConversaMessages(Resource):
                     usuario_id=user_id,
                     texto=texto,
                     tipo=tipo,
-                    data_envio=datetime.now(),
-                    lida=False,
-                    proposta_valor=proposta_valor if proposta_valor else None,
-                    proposta_status='pendente' if proposta_valor else None
+                    data_envio=datetime.now()
                 )
                 
                 session.add(mensagem)
@@ -324,10 +273,13 @@ class IniciarConversa(Resource):
             
             user_id = str(id_usuario['message'])
             data = request.get_json()
+            print(f"Dados recebidos para iniciar conversa: {data}")
             
             bloco_id = data.get('bloco_id')
             vendedor_id = str(data.get('vendedor_id'))
             mensagem_inicial = data.get('mensagem', 'Olá! Tenho interesse neste bloco.')
+            
+            print(f"bloco_id: {bloco_id}, vendedor_id: {vendedor_id}, user_id: {user_id}")
             
             if not bloco_id or not vendedor_id:
                 response = jsonify({'message': 'bloco_id e vendedor_id são obrigatórios'})
@@ -387,8 +339,7 @@ class IniciarConversa(Resource):
                     usuario_id=user_id,
                     texto=mensagem_inicial,
                     tipo='texto',
-                    data_envio=datetime.now(),
-                    lida=False
+                    data_envio=datetime.now()
                 )
                 
                 session.add(mensagem)
@@ -495,10 +446,7 @@ def handle_message(data):
             usuario_id=user_id,
             texto=texto,
             tipo=tipo,
-            data_envio=datetime.now(),
-            lida=False,
-            proposta_valor=proposta_valor if proposta_valor else None,
-            proposta_status='pendente' if proposta_valor else None
+            data_envio=datetime.now()
         )
         
         session.add(mensagem)
@@ -578,8 +526,7 @@ def handle_proposal_response(data):
             usuario_id=user_id,
             texto=texto_resposta,
             tipo='resposta_proposta',
-            data_envio=datetime.now(),
-            lida=False
+            data_envio=datetime.now()
         )
         
         session.add(resposta_msg)
@@ -612,6 +559,206 @@ def handle_proposal_response(data):
     except Exception as e:
         print(f"Erro ao responder proposta: {e}")
         emit('error', {'message': f'Erro ao responder proposta: {str(e)}'})
+
+
+class AceitarProposta(Resource):
+    def post(self, mensagem_id):
+        """Aceitar uma proposta e processar venda via blockchain"""
+        try:
+            id_usuario = verificar_jwt()
+            
+            if id_usuario.get('code', 401) != 200 or not id_usuario.get('message'):
+                response = jsonify({"message": id_usuario.get('message', 'Token inválido ou não fornecido')})
+                response.status_code = id_usuario.get('code', 401)
+                return response
+            
+            user_id = str(id_usuario['message'])
+            session = Session()
+            
+            try:
+                # Buscar a mensagem de proposta
+                mensagem = session.query(Mensagem).filter_by(id=mensagem_id).first()
+                if not mensagem:
+                    response = jsonify({'message': 'Proposta não encontrada'})
+                    response.status_code = 404
+                    return response
+                
+                # Buscar a conversa para obter o bloco
+                conversa = session.query(Conversa).filter_by(id=mensagem.conversa_id).first()
+                if not conversa:
+                    response = jsonify({'message': 'Conversa não encontrada'})
+                    response.status_code = 404
+                    return response
+                
+                # Verificar se o usuário atual é o vendedor (dono do bloco)
+                bloco = session.query(Bloco).filter_by(id=conversa.bloco_id).first()
+                print(f"Debug aceitar proposta - bloco.id_usuario: {bloco.id_usuario if bloco else 'None'}, user_id: {user_id}")
+                print(f"Debug aceitar proposta - tipos: bloco.id_usuario type: {type(bloco.id_usuario) if bloco else 'None'}, user_id type: {type(user_id)}")
+                print(f"Debug aceitar proposta - comparação str: {str(bloco.id_usuario) if bloco else 'None'} == {user_id} = {str(bloco.id_usuario) == user_id if bloco else False}")
+                
+                if not bloco:
+                    print(f"Debug aceitar proposta - ERRO 403: bloco não encontrado")
+                    response = jsonify({'message': 'Bloco não encontrado'})
+                    response.status_code = 404
+                    return response
+                    
+                if str(bloco.id_usuario) != user_id:
+                    print(f"Debug aceitar proposta - ERRO 403: usuário não é o dono. Bloco dono: {bloco.id_usuario}, usuário atual: {user_id}")
+                    response = jsonify({'message': f'Apenas o dono do bloco pode aceitar a proposta. Dono: {bloco.id_usuario}, Você: {user_id}'})
+                    response.status_code = 403
+                    return response
+                
+                # Buscar dados do comprador
+                comprador = session.query(Usuario).filter_by(id=mensagem.usuario_id).first()
+                if not comprador:
+                    response = jsonify({'message': 'Comprador não encontrado'})
+                    response.status_code = 404
+                    return response
+                
+                # Processar venda via blockchain
+                try:
+                    from blockapi.blockchain.blockchain_manager import blockchain_manager
+                    
+                    # Extrair valor da mensagem (assumindo formato "Proposta: R$ 1000")
+                    import re
+                    valor_match = re.search(r'R\$\s*([\d.,]+)', mensagem.texto)
+                    valor = float(valor_match.group(1).replace('.', '').replace(',', '.')) if valor_match else float(bloco.valor)
+                    
+                    # Executar transação blockchain
+                    resultado_blockchain = blockchain_manager.processar_venda(
+                        vendedor_id=int(user_id),
+                        comprador_id=int(mensagem.usuario_id),
+                        bloco_id=bloco.id,
+                        valor=valor
+                    )
+                    
+                    if resultado_blockchain['success']:
+                        # Atualizar proprietário do bloco
+                        bloco.id_usuario = int(mensagem.usuario_id)
+                        bloco.status = "0"  # Marcar como vendido
+                        
+                        # Adicionar mensagem de confirmação
+                        mensagem_confirmacao = Mensagem(
+                            conversa_id=mensagem.conversa_id,
+                            usuario_id=None,  # Mensagem do sistema
+                            texto=f"✅ VENDA CONFIRMADA!\n\nBloco transferido para {comprador.nome}\nValor: R$ {valor:,.2f}\nTransação blockchain: {resultado_blockchain.get('transaction_hash', 'Processada')}",
+                            tipo='sistema',
+                            data_envio=datetime.now()
+                        )
+                        
+                        session.add(mensagem_confirmacao)
+                        session.commit()
+                        
+                        response = jsonify({
+                            'message': 'Proposta aceita e venda processada!',
+                            'blockchain_result': resultado_blockchain
+                        })
+                        response.status_code = 200
+                        return response
+                    else:
+                        response = jsonify({
+                            'message': 'Erro ao processar transação blockchain',
+                            'error': resultado_blockchain.get('error', 'Erro desconhecido')
+                        })
+                        response.status_code = 500
+                        return response
+                        
+                except Exception as blockchain_error:
+                    print(f"Erro na transação blockchain: {blockchain_error}")
+                    # Mesmo com erro blockchain, marcar proposta como aceita
+                    mensagem_resposta = Mensagem(
+                        conversa_id=mensagem.conversa_id,
+                        usuario_id=user_id,
+                        texto="✅ Proposta aceita! Processando transação...",
+                        tipo='resposta_proposta',
+                        data_envio=datetime.now()
+                    )
+                    
+                    session.add(mensagem_resposta)
+                    session.commit()
+                    
+                    response = jsonify({
+                        'message': 'Proposta aceita! Erro na blockchain, processando manualmente.',
+                        'blockchain_error': str(blockchain_error)
+                    })
+                    response.status_code = 200
+                    return response
+                
+            finally:
+                session.close()
+            
+        except Exception as e:
+            print(f"Erro detalhado ao aceitar proposta: {e}")
+            import traceback
+            traceback.print_exc()
+            response = jsonify({'message': f'Erro ao aceitar proposta: {str(e)}'})
+            response.status_code = 500
+            return response
+
+
+class RecusarProposta(Resource):
+    def post(self, mensagem_id):
+        """Recusar uma proposta"""
+        try:
+            id_usuario = verificar_jwt()
+            
+            if id_usuario.get('code', 401) != 200 or not id_usuario.get('message'):
+                response = jsonify({"message": id_usuario.get('message', 'Token inválido ou não fornecido')})
+                response.status_code = id_usuario.get('code', 401)
+                return response
+            
+            user_id = str(id_usuario['message'])
+            session = Session()
+            
+            try:
+                # Buscar a mensagem de proposta
+                mensagem = session.query(Mensagem).filter_by(id=mensagem_id).first()
+                if not mensagem:
+                    response = jsonify({'message': 'Proposta não encontrada'})
+                    response.status_code = 404
+                    return response
+                
+                # Buscar a conversa para obter o bloco
+                conversa = session.query(Conversa).filter_by(id=mensagem.conversa_id).first()
+                if not conversa:
+                    response = jsonify({'message': 'Conversa não encontrada'})
+                    response.status_code = 404
+                    return response
+                
+                # Verificar se o usuário atual é o vendedor (dono do bloco)
+                bloco = session.query(Bloco).filter_by(id=conversa.bloco_id).first()
+                if not bloco or str(bloco.id_usuario) != user_id:
+                    response = jsonify({'message': 'Apenas o dono do bloco pode recusar a proposta'})
+                    response.status_code = 403
+                    return response
+                
+                # Adicionar mensagem de recusa
+                mensagem_resposta = Mensagem(
+                    conversa_id=mensagem.conversa_id,
+                    usuario_id=user_id,
+                    texto="❌ Proposta recusada.",
+                    tipo='resposta_proposta',
+                    data_envio=datetime.now()
+                )
+                
+                session.add(mensagem_resposta)
+                session.commit()
+                
+                response = jsonify({'message': 'Proposta recusada!'})
+                response.status_code = 200
+                return response
+                
+            finally:
+                session.close()
+            
+        except Exception as e:
+            print(f"Erro detalhado ao recusar proposta: {e}")
+            import traceback
+            traceback.print_exc()
+            response = jsonify({'message': f'Erro ao recusar proposta: {str(e)}'})
+            response.status_code = 500
+            return response
+
 
 @socketio.on('connect')
 def handle_connect():

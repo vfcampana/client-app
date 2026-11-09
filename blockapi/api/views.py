@@ -1,10 +1,11 @@
 from flask import Blueprint
 from flask_restful import Api
 from api.resources.usuario import UsuarioGet, UsuarioAtualiza, UsuarioDelete, UsuarioLogin, UsuarioCadastro, UsuarioProtected
-from api.resources.bloco import BlocoPublic, BlocoList, BlocoGet, BlocoDelete, BlocoAtualiza, BlocoCadastro
+from api.resources.bloco import BlocoPublic, BlocoList, BlocoGet, BlocoDelete, BlocoAtualiza, BlocoCadastro, BlocosParaVenda, BlocoDetalhesVenda
 from api.resources.anuncio import AnuncioList, AnuncioGet, AnuncioDelete, AnuncioCadastro
 from api.resources.lote import LoteList, LoteGet, LoteDelete, LoteAtualiza, LoteCadastro
-from api.resources.chat import ConversasList, ConversaMessages, IniciarConversa
+from api.resources.chat import ConversasList, ConversaMessages, IniciarConversa, AceitarProposta, RecusarProposta
+from api.resources.compra import ComprarBloco
 from api.resources.favorito import FavoritoPost, FavoritoGet, FavoritoDelete
 from api.resources.blockchain import (
     BlockchainStatus, BlockchainUserRegister, BlockchainUserCheck,
@@ -36,6 +37,10 @@ api.add_resource(BlocoDelete, '/bloco/<int:id>')
 api.add_resource(BlocoAtualiza, '/bloco/<int:id>')
 api.add_resource(BlocoCadastro, '/bloco')
 
+# Rotas de Vendas
+api.add_resource(BlocosParaVenda, '/blocos-venda')
+api.add_resource(BlocoDetalhesVenda, '/bloco-venda/<int:bloco_id>')
+
 # Rotas de Favoritos
 api.add_resource(FavoritoPost, '/favorito')
 api.add_resource(FavoritoGet, '/favorito')
@@ -63,6 +68,8 @@ api.add_resource(LoteCadastro, '/lote')
 api.add_resource(ConversasList, '/conversas')
 api.add_resource(ConversaMessages, '/conversas/<int:conversa_id>/mensagens')
 api.add_resource(IniciarConversa, '/iniciar-conversa')
+api.add_resource(AceitarProposta, '/propostas/<int:mensagem_id>/aceitar')
+api.add_resource(RecusarProposta, '/propostas/<int:mensagem_id>/recusar')
 
 # Rotas de Blockchain
 api.add_resource(BlockchainStatus, '/blockchain/status')
@@ -73,4 +80,7 @@ api.add_resource(BlockchainSaleProposal, '/blockchain/sale/proposal')
 api.add_resource(BlockchainSaleAccept, '/blockchain/sale/accept')
 api.add_resource(BlockchainTransferCheck, '/blockchain/transfer/check')
 api.add_resource(BlockchainSale, '/blockchain/vendas')
+
+# Rota de Compra Direta
+api.add_resource(ComprarBloco, '/blockchain/comprar-bloco')
 

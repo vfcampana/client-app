@@ -330,3 +330,118 @@ class BlocoCadastro(Resource):
             response = jsonify({"message": "Dados inválidos"})
             response.status_code = 401
             return response
+
+class BlocosParaVenda(Resource):
+    """
+    Endpoint para listar blocos disponíveis para venda
+    """
+    
+    def get(self):
+        """
+        GET /api/blocos-venda
+        Lista todos os blocos que estão disponíveis para venda
+        """
+        session = Session()
+        try:
+            # Buscar blocos ativos (status = "1") que não sejam do usuário logado
+            id_usuario_logado = verificar_jwt()
+            
+            if id_usuario_logado['code'] != 200:
+                # Se não estiver logado, mostra todos os blocos
+                blocos = session.query(Bloco).filter(Bloco.status == "1").all()
+            else:
+                # Se estiver logado, exclui os blocos do próprio usuário
+                blocos = session.query(Bloco).filter(
+                    Bloco.status == "1",
+                    Bloco.id_usuario != int(id_usuario_logado['message'])
+                ).all()
+            
+            lista_blocos = []
+            for bloco in blocos:
+                bloco_dict = bloco.to_dict()
+                
+                # Buscar imagens do Supabase
+                try:
+                    imagens = imagem_service.listar_imagens_bloco(bloco.id)
+                    bloco_dict['imagens'] = imagens
+                except Exception as e:
+                    print(f"Erro ao buscar imagens para bloco {bloco.id}: {e}")
+                    bloco_dict['imagens'] = []
+                
+                # Adicionar informações do proprietário
+                from models.usuario import Usuario
+                proprietario = session.query(Usuario).filter(Usuario.id == bloco.id_usuario).first()
+                if proprietario:
+                    bloco_dict['proprietario'] = {
+                        'id': proprietario.id,
+                        'nome': proprietario.nome,
+                        'cidade': proprietario.cidade,
+                        'estado': proprietario.estado
+                    }
+                
+                lista_blocos.append(bloco_dict)
+            
+            return {
+                'success': True,
+                'blocos': lista_blocos,
+                'total': len(lista_blocos)
+            }, 200
+            
+        except Exception as e:
+            return {"message": "Erro ao buscar blocos para venda", "error": str(e)}, 500
+        finally:
+            session.close()
+
+class BlocoDetalhesVenda(Resource):
+    """
+    Endpoint para obter detalhes de um bloco específico para venda
+    """
+    
+    def get(self, bloco_id):
+        """
+        GET /api/bloco-venda/<int:bloco_id>
+        Obtém detalhes completos de um bloco para processo de venda
+        """
+        session = Session()
+        try:
+            bloco = session.query(Bloco).filter(
+                Bloco.id == bloco_id,
+                Bloco.status == "1"
+            ).first()
+            
+            if not bloco:
+                return {"message": "Bloco não encontrado ou não disponível"}, 404
+            
+            bloco_dict = bloco.to_dict()
+            
+            # Buscar imagens
+            try:
+                imagens = imagem_service.listar_imagens_bloco(bloco.id)
+                bloco_dict['imagens'] = imagens
+            except Exception as e:
+                print(f"Erro ao buscar imagens para bloco {bloco.id}: {e}")
+                bloco_dict['imagens'] = []
+            
+            # Informações do proprietário
+            from models.usuario import Usuario
+            proprietario = session.query(Usuario).filter(Usuario.id == bloco.id_usuario).first()
+            if proprietario:
+                bloco_dict['proprietario'] = {
+                    'id': proprietario.id,
+                    'nome': proprietario.nome,
+                    'email': proprietario.email,
+                    'telefone': proprietario.telefone,
+                    'cidade': proprietario.cidade,
+                    'estado': proprietario.estado,
+                    'wallet_address': getattr(proprietario, 'wallet_address', None)
+                }
+            
+            return {
+                'success': True,
+                'bloco': bloco_dict
+            }, 200
+            
+        except Exception as e:
+            return {"message": "Erro ao buscar detalhes do bloco", "error": str(e)}, 500
+        finally:
+            session.close()

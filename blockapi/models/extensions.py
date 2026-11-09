@@ -6,7 +6,9 @@ from flask_socketio import SocketIO
 import os
 import jwt
 
-load_dotenv()
+# Carrega o .env da raiz do projeto (dois níveis acima - sai de models/ e blockapi/)
+env_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), '.env')
+load_dotenv(dotenv_path=env_path)
 
 DATABASE_URL = os.getenv("DATABASE_URL")
 

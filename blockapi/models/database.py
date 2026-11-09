@@ -1,14 +1,17 @@
 from sqlalchemy.orm import relationship
-from models.extensions import engine
+from models.extensions import engine, SessionLocal
 from models.base import Base
-from bloco import Bloco
-from usuario import Usuario
-from imagem import Imagens
-from anuncio import Anuncio
-from lote_bloco import LoteBlocos
-from lote import Lote
-from mensagem import Mensagem
-from conversa import Conversa
+from models.bloco import Bloco
+from models.usuario import Usuario
+from models.imagem import Imagens
+from models.anuncio import Anuncio
+from models.lote_bloco import LoteBlocos
+from models.lote import Lote
+from models.mensagem import Mensagem
+from models.conversa import Conversa
+
+# Exportar Session para compatibilidade
+Session = SessionLocal
 
 # Definição dos relacionamentos dentro de uma função
 def define_relationships():

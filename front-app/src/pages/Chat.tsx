@@ -253,6 +253,46 @@ const Chat: React.FC = () => {
     await carregarMensagens(conversaId);
   }, [carregarMensagens]);
 
+  // Função para responder a uma proposta (aceitar/recusar)
+  const responderProposta = useCallback(async (mensagemId: number, acao: 'aceitar' | 'recusar') => {
+    if (!conversaSelecionada || !token) return;
+
+    try {
+      const endpoint = acao === 'aceitar' 
+        ? `/propostas/${mensagemId}/aceitar`
+        : `/propostas/${mensagemId}/recusar`;
+
+      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL || 'http://localhost:5000'}${endpoint}`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error(`Erro ao ${acao} proposta`);
+      }
+
+      const resultado = await response.json();
+
+      // Mostrar resultado da transação
+      if (acao === 'aceitar' && resultado.blockchain_result) {
+        alert(`Proposta aceita! Transação blockchain: ${resultado.blockchain_result.transaction_hash || 'Processada'}`);
+      } else {
+        alert(`Proposta ${acao === 'aceitar' ? 'aceita' : 'recusada'} com sucesso!`);
+      }
+
+      // Recarregar mensagens e conversas
+      await carregarMensagens(conversaSelecionada);
+      await carregarConversas(true);
+
+    } catch (error) {
+      console.error(`Erro ao ${acao} proposta:`, error);
+      alert(`Erro ao ${acao} proposta. Tente novamente.`);
+    }
+  }, [conversaSelecionada, token, carregarMensagens, carregarConversas]);
+
   // Função para enviar proposta
   const handleEnviarProposta = useCallback(async () => {
     if (!valorProposta.trim() || !conversaSelecionada || !user) return;
@@ -384,6 +424,57 @@ const Chat: React.FC = () => {
           <Typography variant="body2" sx={{ mb: 1 }}>
             {mensagem.texto}
           </Typography>
+
+          {/* Botões para propostas recebidas */}
+          {ehProposta && !ehMinhaMensagem && mensagem.proposta_status === 'pendente' && (
+            <Box sx={{ mt: 2, display: 'flex', gap: 1, justifyContent: 'flex-end' }}>
+              <Button
+                size="small"
+                variant="outlined"
+                color="error"
+                onClick={() => responderProposta(mensagem.id, 'recusar')}
+                sx={{ 
+                  color: 'white', 
+                  borderColor: 'rgba(255,255,255,0.5)',
+                  '&:hover': {
+                    borderColor: 'white',
+                    backgroundColor: 'rgba(255,255,255,0.1)'
+                  }
+                }}
+              >
+                Recusar
+              </Button>
+              <Button
+                size="small"
+                variant="contained"
+                color="success"
+                onClick={() => responderProposta(mensagem.id, 'aceitar')}
+                sx={{ 
+                  backgroundColor: 'rgba(76, 175, 80, 0.9)',
+                  '&:hover': {
+                    backgroundColor: 'rgba(76, 175, 80, 1)'
+                  }
+                }}
+              >
+                Aceitar
+              </Button>
+            </Box>
+          )}
+
+          {/* Status da proposta */}
+          {ehProposta && mensagem.proposta_status !== 'pendente' && (
+            <Chip
+              label={mensagem.proposta_status === 'aceita' ? '✅ Aceita' : '❌ Recusada'}
+              size="small"
+              sx={{ 
+                mt: 1, 
+                color: 'white', 
+                backgroundColor: mensagem.proposta_status === 'aceita' 
+                  ? 'rgba(76, 175, 80, 0.8)' 
+                  : 'rgba(244, 67, 54, 0.8)' 
+              }}
+            />
+          )}
 
           <Typography 
             variant="caption" 

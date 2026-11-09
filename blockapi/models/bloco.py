@@ -26,7 +26,7 @@ class Bloco(Base):
     id_usuario = Column(Integer, ForeignKey('usuario.id'))
     status = Column(String, nullable=False)
     imagem = Column(String, nullable=False)
-    blockchain_uid = Column(String, nullable=True)  # UID do bloco na blockchain
+    # blockchain_uid = Column(String, nullable=True)  # UID do bloco na blockchain (comentado até migração)
     
     # Propriedades para compatibilidade com blockchain
     @property

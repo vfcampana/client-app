@@ -1,6 +1,7 @@
 from flask import jsonify, request
 from flask_restful import Resource
 from sqlalchemy.orm import sessionmaker
+import logging
 from models.usuario import Usuario
 from models.extensions import engine, verificar_jwt
 from datetime import datetime
@@ -8,6 +9,7 @@ from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identi
 import requests
 
 Session = sessionmaker(bind=engine)
+logger = logging.getLogger(__name__)
 
 class UsuarioProtected(Resource):
     @jwt_required()
@@ -105,6 +107,16 @@ class UsuarioCadastro(Resource):
 
                     access_token = create_access_token(identity=str(user.id))
                     
+                    # Tenta cadastrar o usuário também na blockchain (se disponível)
+                    blockchain_result = None
+                    try:
+                        from blockchain.blockchain_manager import blockchain_manager
+                        blockchain_result = blockchain_manager.register_user_on_blockchain(user)
+                    except Exception as e:
+                        # não devemos quebrar o cadastro por falha na blockchain
+                        logger.exception("Erro ao tentar registrar usuário na blockchain")
+                        blockchain_result = {"success": False, "message": str(e)}
+
                     response_data = {
                         "message": "Usuário cadastrado com sucesso",
                         "access_token": access_token,
@@ -121,6 +133,9 @@ class UsuarioCadastro(Resource):
                             "pais": user.pais
                         }
                     }
+
+                    # incluir resultado da tentativa blockchain na resposta
+                    response_data['blockchain'] = blockchain_result
                     
                     return response_data, 201
                     

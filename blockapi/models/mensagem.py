@@ -7,44 +7,52 @@ class Mensagem(Base):
     
     id = Column(Integer, primary_key=True, autoincrement=True)
     conversa_id = Column(Integer, ForeignKey('conversas.id'), nullable=False)
-    usuario_id = Column(Integer, ForeignKey('usuario.id'), nullable=True)  # Nullable para mensagens do sistema
-    conteudo = Column(Text, nullable=False)  # Renomeado de 'texto' para 'conteudo'
+    usuario_id = Column(Integer, ForeignKey('usuario.id'), nullable=True)
+    texto = Column(Text, nullable=False)
     tipo = Column(String(50), default='texto')
-    enviada_em = Column(DateTime, default=datetime.utcnow, nullable=False)  # Renomeado de 'data_envio'
-    lida = Column(Boolean, default=False)
-    proposta_valor = Column(String(20), nullable=True)
-    proposta_status = Column(String(20), default='pendente')
-    metadata_json = Column(JSON, nullable=True)  # Para dados adicionais (blockchain, etc.)
+    data_envio = Column(DateTime, default=datetime.utcnow, nullable=False)
     
-    # Manter compatibilidade com campos antigos
+    # Compatibilidade com campos novos (para futuras migrações)
     @property
-    def texto(self):
-        return self.conteudo
+    def conteudo(self):
+        return self.texto
     
-    @texto.setter
-    def texto(self, value):
-        self.conteudo = value
+    @conteudo.setter
+    def conteudo(self, value):
+        self.texto = value
     
     @property
-    def data_envio(self):
-        return self.enviada_em
+    def enviada_em(self):
+        return self.data_envio
     
-    @data_envio.setter
-    def data_envio(self, value):
-        self.enviada_em = value
+    @enviada_em.setter
+    def enviada_em(self, value):
+        self.data_envio = value
+    
+    # Campos virtuais para funcionalidades extras (não na BD)
+    @property
+    def lida(self):
+        return False  # Sempre False por enquanto
+    
+    @property
+    def proposta_valor(self):
+        return None  # Não implementado na BD atual
+    
+    @property
+    def proposta_status(self):
+        return 'pendente'  # Valor padrão
     
     def to_dict(self):
         return {
             'id': self.id,
             'conversa_id': self.conversa_id,
             'usuario_id': self.usuario_id,
-            'conteudo': self.conteudo,
-            'texto': self.conteudo,  # Compatibilidade
+            'texto': self.texto,
+            'conteudo': self.texto,  # Compatibilidade
             'tipo': self.tipo,
-            'enviada_em': self.enviada_em.isoformat() if self.enviada_em else None,
-            'data_envio': self.enviada_em.isoformat() if self.enviada_em else None,  # Compatibilidade
+            'data_envio': self.data_envio.isoformat() if self.data_envio else None,
+            'enviada_em': self.data_envio.isoformat() if self.data_envio else None,  # Compatibilidade
             'lida': self.lida,
             'proposta_valor': self.proposta_valor,
-            'proposta_status': self.proposta_status,
-            'metadata': self.metadata_json
+            'proposta_status': self.proposta_status
         }

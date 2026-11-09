@@ -10,18 +10,20 @@ import {
   IconButton,
   Container,
   CircularProgress,
+  Alert,
 } from "@mui/material";
 import {
   ArrowBack,
-  Handshake,
+  ShoppingCart,
   Star,
   Business,
   LocationOn,
-
 } from "@mui/icons-material";
+import { useState } from 'react';
 import { useTheme } from "@mui/material/styles";
 import { useNavigate } from "react-router-dom";
 import ImageCarousel from '../ImageCarousel';
+import CompraModal from '../CompraModal';
 
 export default function BlockDetailsPage({ 
   block, 
@@ -32,6 +34,28 @@ export default function BlockDetailsPage({
 }) {
   const theme = useTheme();
   const navigate = useNavigate();
+  
+  // Estados para compra direta
+  const [compraModalOpen, setCompraModalOpen] = useState(false);
+  const [error, setError] = useState(null);
+  const [success, setSuccess] = useState(null);
+  
+  const getCurrentUserId = () => {
+    const userData = localStorage.getItem('user');
+    if (userData) {
+      try {
+        const user = JSON.parse(userData);
+        return user.id;
+      } catch (e) {
+        console.error('Erro ao fazer parse dos dados do usuário:', e);
+      }
+    }
+    return null;
+  };
+  
+  const isUserLoggedIn = () => {
+    return !!localStorage.getItem('authToken');
+  };
 
   const formatDate = (dateString) => {
     if (!dateString) return "N/A";
@@ -48,40 +72,22 @@ export default function BlockDetailsPage({
     }).format(numValue);
   };
 
-  const handleIniciarConversa = async () => {
-    try {
-      const token = localStorage.getItem('authToken');
-      
-      if (!token) {
-        alert('Você precisa estar logado para negociar');
-        return;
-      }
-
-      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL || 'http://localhost:5000'}/iniciar-conversa`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          bloco_id: block.id,
-          vendedor_id: block.id_usuario, // Assumindo que o bloco tem o id do usuário
-          mensagem: 'Olá! Tenho interesse neste bloco.'
-        })
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        // Redirecionar para o chat
-        navigate('/chat');
-        alert('Conversa iniciada! Redirecionando para o chat...');
-      } else {
-        throw new Error('Erro ao iniciar conversa');
-      }
-    } catch (error) {
-      console.error('Erro ao iniciar conversa:', error);
-      alert('Erro ao iniciar conversa. Tente novamente.');
+  const handleIniciarCompra = () => {
+    const currentUserId = getCurrentUserId();
+    
+    if (!isUserLoggedIn()) {
+      setError('Você precisa estar logado para comprar.');
+      return;
     }
+    
+    if (currentUserId && Number(block.id_usuario) === Number(currentUserId)) {
+      setError('Você não pode comprar seu próprio bloco.');
+      return;
+    }
+    
+    setCompraModalOpen(true);
+    setError(null);
+    setSuccess(null);
   };
 
   return (
@@ -260,8 +266,8 @@ export default function BlockDetailsPage({
         <Button
           variant="contained"
           size="large"
-          startIcon={<Handshake />}
-          onClick={handleIniciarConversa}
+          startIcon={<ShoppingCart />}
+          onClick={handleIniciarCompra}
           sx={{
             backgroundColor: theme.palette.primary.main,
             color: "white",
@@ -273,7 +279,7 @@ export default function BlockDetailsPage({
             },
           }}
         >
-          NEGOCIAR
+          COMPRAR AGORA
         </Button>
 
         <Button
@@ -309,6 +315,34 @@ export default function BlockDetailsPage({
           />
         </Box>
       )}
+
+      {/* Mensagens de erro e sucesso */}
+      {error && (
+        <Box sx={{ mb: 2 }}>
+          <Alert severity="error">{error}</Alert>
+        </Box>
+      )}
+
+      {success && (
+        <Box sx={{ mb: 2 }}>
+          <Alert severity="success">{success}</Alert>
+        </Box>
+      )}
+
+      {/* Modal de Compra */}
+      <CompraModal
+        open={compraModalOpen}
+        onClose={() => setCompraModalOpen(false)}
+        bloco={block}
+        onCompraRealizada={() => {
+          setCompraModalOpen(false);
+          setSuccess('Compra realizada com sucesso!');
+          // Recarregar a página após 2 segundos
+          setTimeout(() => {
+            window.location.reload();
+          }, 2000);
+        }}
+      />
     </Container>
   );
 }

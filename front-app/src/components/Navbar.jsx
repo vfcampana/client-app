@@ -44,10 +44,10 @@ export default function Navbar() {
     }
 
     const menuItems = [
-        { icon: <HomeIcon />, label: 'Home', route: '/home' },
+        { icon: <HomeIcon />, label: 'Home', route: '/Home' },
         { icon: <StarIcon />, label: 'Favoritos', route: '/favorites' },
-        { icon: <ViewInArIcon />, label: 'Meus Blocos', route: '/blocks' },
-        { icon: <ChatIcon />, label: 'Chat', route: '/chat' },
+        { icon: <ViewInArIcon />, label: 'Meus Blocos', route: '/Blocks' },
+        { icon: <ChatIcon />, label: 'Chat', route: '/Chat' },
         { icon: <LogOutIcon />, label: 'Sair', action: handleExit },
     ];
 

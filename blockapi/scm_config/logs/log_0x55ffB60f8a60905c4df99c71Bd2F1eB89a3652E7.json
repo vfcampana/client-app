@@ -29,5 +29,517 @@
                 "link": "https://sepolia.etherscan.io/tx/0x4a710c9fd2e79d926516036f03f425823e3ad861094e9191626882e7b14696a0"
             }
         ]
+    },
+    {
+        "operation": "add 1 new users",
+        "timestamp": "2025/11/02, 15:21:01.932447",
+        "output": [
+            {
+                "uid": "0x790639C1A6A8233A6c6c642F81c752217d9F499d",
+                "list_index": 1,
+                "registration_timestamp": "2025/11/02, 15:21:01.932447",
+                "last_update_timestamp": "2025/11/02, 15:21:01.932447",
+                "company_name": "blockchain",
+                "cnpj": "12.312.312/3122-11",
+                "email_address": "usuarioblock2@gmail.com",
+                "ornamental_blocks_list": []
+            }
+        ],
+        "transactions": [
+            {
+                "contract_address": "0x55ffB60f8a60905c4df99c71Bd2F1eB89a3652E7",
+                "from": "0xeEd939c8336340e182fe0a0e72b61fb31E20a0E8",
+                "function": "add_new_user",
+                "cost_gwei": 219.51878048100002,
+                "cost_eth": 2.19518780481e-07,
+                "duration": 9.755,
+                "index": 90,
+                "gas_used": 219519,
+                "effective_gas_price": 999999,
+                "hash": "0x716b0b8684513ebc27ff413542557a6d978b4a8f9c649679522be4d6dbfe7873",
+                "block_hash": "0x300dfa9873d46183bc367a480984e831dd60e3c45f6090ab69f7adf4dd68379a",
+                "block_number": 9546158,
+                "link": "https://sepolia.etherscan.io/tx/0x716b0b8684513ebc27ff413542557a6d978b4a8f9c649679522be4d6dbfe7873"
+            }
+        ]
+    },
+    {
+        "operation": "add 1 new users",
+        "timestamp": "2025/11/03, 22:14:47.229476",
+        "output": [
+            {
+                "uid": "0x7645877FA8adF44939ee2bA992af1564E51635Dd",
+                "list_index": 2,
+                "registration_timestamp": "2025/11/03, 22:14:47.229476",
+                "last_update_timestamp": "2025/11/03, 22:14:47.229476",
+                "company_name": "miguel",
+                "cnpj": "123456789",
+                "email_address": "miguel@gmail.com",
+                "ornamental_blocks_list": []
+            }
+        ],
+        "transactions": [
+            {
+                "contract_address": "0x55ffB60f8a60905c4df99c71Bd2F1eB89a3652E7",
+                "from": "0xeEd939c8336340e182fe0a0e72b61fb31E20a0E8",
+                "function": "add_new_user",
+                "cost_gwei": 219.28141206900003,
+                "cost_eth": 2.1928141206900002e-07,
+                "duration": 11.728,
+                "index": 59,
+                "gas_used": 219279,
+                "effective_gas_price": 1000011,
+                "hash": "0xc1583bb7e3037cd26cf2e233f9870adbc839aafe3d0f82701d068b587ef9f567",
+                "block_hash": "0xa4449858d5ae90196fab9eb16260713bfd32859d75a5e86ca94d8cc008b8f28d",
+                "block_number": 9555404,
+                "link": "https://sepolia.etherscan.io/tx/0xc1583bb7e3037cd26cf2e233f9870adbc839aafe3d0f82701d068b587ef9f567"
+            }
+        ]
+    },
+    {
+        "operation": "add 1 new users",
+        "timestamp": "2025/11/03, 22:15:04.712056",
+        "output": [
+            {
+                "uid": "0x762A2e22845a4F364a83211c2F082a9DA34db475",
+                "list_index": 3,
+                "registration_timestamp": "2025/11/03, 22:15:04.712056",
+                "last_update_timestamp": "2025/11/03, 22:15:04.712056",
+                "company_name": "Joao",
+                "cnpj": "22313",
+                "email_address": "joao@gmail.com",
+                "ornamental_blocks_list": []
+            }
+        ],
+        "transactions": [
+            {
+                "contract_address": "0x55ffB60f8a60905c4df99c71Bd2F1eB89a3652E7",
+                "from": "0xeEd939c8336340e182fe0a0e72b61fb31E20a0E8",
+                "function": "add_new_user",
+                "cost_gwei": 219.18541101300002,
+                "cost_eth": 2.1918541101300002e-07,
+                "duration": 6.641,
+                "index": 67,
+                "gas_used": 219183,
+                "effective_gas_price": 1000011,
+                "hash": "0x9f29dd3170a048abd5cfe0e8df63eee93047bae1d4385ff5e22b41b962190c3d",
+                "block_hash": "0x0c078981cc4b1ab1ae09aaefd856d0f621488bd0c39c9602905d8de903a97486",
+                "block_number": 9555405,
+                "link": "https://sepolia.etherscan.io/tx/0x9f29dd3170a048abd5cfe0e8df63eee93047bae1d4385ff5e22b41b962190c3d"
+            }
+        ]
+    },
+    {
+        "operation": "add 1 new ornamental blocks",
+        "timestamp": "2025/11/03, 22:22:54.754936",
+        "output": [
+            {
+                "uid": "0xF1eC89b80C11CA0f4cb38567073171c9aA9eAcd4",
+                "list_index": 0,
+                "registration_timestamp": "2025/11/03, 22:22:54.754936",
+                "last_update_timestamp": "2025/11/03, 22:22:54.754936",
+                "mining_data": {
+                    "company": "miguel",
+                    "mining_date": "2025-11-03",
+                    "mining_site": "local não especificado"
+                },
+                "code": "BLK-17",
+                "properties": {
+                    "material": "a",
+                    "dimensions": "0x0x0 mm",
+                    "weight": "0 kg"
+                },
+                "hash": "hash-17-1762219373.571295",
+                "is_active": true,
+                "last_owners": [
+                    "0x7645877FA8adF44939ee2bA992af1564E51635Dd"
+                ],
+                "invoice_numbers": []
+            }
+        ],
+        "transactions": [
+            {
+                "contract_address": "0x55ffB60f8a60905c4df99c71Bd2F1eB89a3652E7",
+                "from": "0xeEd939c8336340e182fe0a0e72b61fb31E20a0E8",
+                "function": "add_new_ornamental_block",
+                "cost_gwei": 470.85723767700006,
+                "cost_eth": 4.7085723767700003e-07,
+                "duration": 3.844,
+                "index": 102,
+                "gas_used": 470853,
+                "effective_gas_price": 1000009,
+                "hash": "0xc17d2d63eb17b6642ff79153cdf2471b195378cb9fc42b6093960f7d569f3d2c",
+                "block_hash": "0xcf10b94752d41ad512620a90f761c74e80fcce2a661c76f2ec23bdc9c99bcfb8",
+                "block_number": 9555444,
+                "link": "https://sepolia.etherscan.io/tx/0xc17d2d63eb17b6642ff79153cdf2471b195378cb9fc42b6093960f7d569f3d2c"
+            }
+        ]
+    },
+    {
+        "operation": "transfer 1 ornamental blocks",
+        "timestamp": "2025/11/03, 22:23:03.228768",
+        "output": [
+            {
+                "uid": "0xF1eC89b80C11CA0f4cb38567073171c9aA9eAcd4",
+                "list_index": 0,
+                "registration_timestamp": "2025/11/03, 22:22:54.754936",
+                "last_update_timestamp": "2025/11/03, 22:23:03.228768",
+                "mining_data": {
+                    "company": "miguel",
+                    "mining_date": "2025-11-03",
+                    "mining_site": "local não especificado"
+                },
+                "code": "BLK-17",
+                "properties": {
+                    "material": "a",
+                    "dimensions": "0x0x0 mm",
+                    "weight": "0 kg"
+                },
+                "hash": "hash-17-1762219373.571295",
+                "is_active": true,
+                "last_owners": [
+                    "0x7645877FA8adF44939ee2bA992af1564E51635Dd",
+                    "0x762A2e22845a4F364a83211c2F082a9DA34db475"
+                ],
+                "invoice_numbers": [
+                    "INV-17-12-10-1762219381"
+                ]
+            }
+        ],
+        "transactions": [
+            {
+                "contract_address": "0x55ffB60f8a60905c4df99c71Bd2F1eB89a3652E7",
+                "from": "0xeEd939c8336340e182fe0a0e72b61fb31E20a0E8",
+                "function": "transfer_ornamental_block",
+                "cost_gwei": 178.655,
+                "cost_eth": 1.78655e-07,
+                "duration": 20.168,
+                "index": 134,
+                "gas_used": 178655,
+                "effective_gas_price": 1000000,
+                "hash": "0x0687fd04f98825350303a12ce826897fa94fe16db0a45948caff595a3b44f071",
+                "block_hash": "0x3bbb2bf89e84261d30dfacfc3e3ab99b25fbda4ccda3808d0a60f4ab986cc470",
+                "block_number": 9555446,
+                "link": "https://sepolia.etherscan.io/tx/0x0687fd04f98825350303a12ce826897fa94fe16db0a45948caff595a3b44f071"
+            }
+        ]
+    },
+    {
+        "operation": "add 1 new users",
+        "timestamp": "2025/11/04, 09:46:10.242351",
+        "output": [
+            {
+                "uid": "0x134Bc0df21baF7289B6921DA171a8BC7338CfD01",
+                "list_index": 4,
+                "registration_timestamp": "2025/11/04, 09:46:10.242351",
+                "last_update_timestamp": "2025/11/04, 09:46:10.242351",
+                "company_name": "Empresa Teste",
+                "cnpj": "26.319.231/11",
+                "email_address": "empresateste@gmail.com",
+                "ornamental_blocks_list": []
+            }
+        ],
+        "transactions": [
+            {
+                "contract_address": "0x55ffB60f8a60905c4df99c71Bd2F1eB89a3652E7",
+                "from": "0xeEd939c8336340e182fe0a0e72b61fb31E20a0E8",
+                "function": "add_new_user",
+                "cost_gwei": 219.48519483,
+                "cost_eth": 2.1948519483000001e-07,
+                "duration": 13.408,
+                "index": 62,
+                "gas_used": 219483,
+                "effective_gas_price": 1000010,
+                "hash": "0x7e04d674be8f476f07baaf80d15cfdc96ffcf2bd7457aa019037547cec8b517d",
+                "block_hash": "0x3d8d542f1f230e8e669a8dbc2778b90ce25d61a91e012d5a3c6232508d7a23ce",
+                "block_number": 9558855,
+                "link": "https://sepolia.etherscan.io/tx/0x7e04d674be8f476f07baaf80d15cfdc96ffcf2bd7457aa019037547cec8b517d"
+            }
+        ]
+    },
+    {
+        "operation": "add 1 new ornamental blocks",
+        "timestamp": "2025/11/04, 09:46:43.488469",
+        "output": [
+            {
+                "uid": "0x1fd69D023240Fe4c4375eed409c764D60467dA10",
+                "list_index": 1,
+                "registration_timestamp": "2025/11/04, 09:46:43.488469",
+                "last_update_timestamp": "2025/11/04, 09:46:43.488469",
+                "mining_data": {
+                    "company": "Joao",
+                    "mining_date": "2025-11-04",
+                    "mining_site": "local não especificado"
+                },
+                "code": "BLK-27",
+                "properties": {
+                    "material": "pedra",
+                    "dimensions": "200.0x0x0 mm",
+                    "weight": "500000.0 kg"
+                },
+                "hash": "hash-27-1762260402.373764",
+                "is_active": true,
+                "last_owners": [
+                    "0x762A2e22845a4F364a83211c2F082a9DA34db475"
+                ],
+                "invoice_numbers": []
+            }
+        ],
+        "transactions": [
+            {
+                "contract_address": "0x55ffB60f8a60905c4df99c71Bd2F1eB89a3652E7",
+                "from": "0xeEd939c8336340e182fe0a0e72b61fb31E20a0E8",
+                "function": "add_new_ornamental_block",
+                "cost_gwei": 479.35400000000004,
+                "cost_eth": 4.79354e-07,
+                "duration": 28.8,
+                "index": 113,
+                "gas_used": 479354,
+                "effective_gas_price": 1000000,
+                "hash": "0x97457c7e7865c38124b022619aa24a97d5753b69144ee286b4ffae7282c4485f",
+                "block_hash": "0x2dfa9010846c7c7b8ec9f5ba278c422b8619667f075b15673a56001e41ddff7d",
+                "block_number": 9558859,
+                "link": "https://sepolia.etherscan.io/tx/0x97457c7e7865c38124b022619aa24a97d5753b69144ee286b4ffae7282c4485f"
+            }
+        ]
+    },
+    {
+        "operation": "transfer 1 ornamental blocks",
+        "timestamp": "2025/11/04, 09:47:16.122901",
+        "output": [
+            {
+                "uid": "0x1fd69D023240Fe4c4375eed409c764D60467dA10",
+                "list_index": 1,
+                "registration_timestamp": "2025/11/04, 09:46:43.488469",
+                "last_update_timestamp": "2025/11/04, 09:47:16.122901",
+                "mining_data": {
+                    "company": "Joao",
+                    "mining_date": "2025-11-04",
+                    "mining_site": "local não especificado"
+                },
+                "code": "BLK-27",
+                "properties": {
+                    "material": "pedra",
+                    "dimensions": "200.0x0x0 mm",
+                    "weight": "500000.0 kg"
+                },
+                "hash": "hash-27-1762260402.373764",
+                "is_active": true,
+                "last_owners": [
+                    "0x762A2e22845a4F364a83211c2F082a9DA34db475",
+                    "0x134Bc0df21baF7289B6921DA171a8BC7338CfD01"
+                ],
+                "invoice_numbers": [
+                    "INV-27-10-33-1762260434"
+                ]
+            }
+        ],
+        "transactions": [
+            {
+                "contract_address": "0x55ffB60f8a60905c4df99c71Bd2F1eB89a3652E7",
+                "from": "0xeEd939c8336340e182fe0a0e72b61fb31E20a0E8",
+                "function": "transfer_ornamental_block",
+                "cost_gwei": 187.14200000000002,
+                "cost_eth": 1.8714200000000002e-07,
+                "duration": 7.133,
+                "index": 69,
+                "gas_used": 187142,
+                "effective_gas_price": 1000000,
+                "hash": "0xae329abc694ab02c2d4ed16c4b10388859b02665244e7f7fa952327999c99c03",
+                "block_hash": "0xb08834899aa2f3de663aeebce0ce399c92cea0995ae03af96e3d7de5d9e991e1",
+                "block_number": 9558860,
+                "link": "https://sepolia.etherscan.io/tx/0xae329abc694ab02c2d4ed16c4b10388859b02665244e7f7fa952327999c99c03"
+            }
+        ]
+    },
+    {
+        "operation": "add 1 new ornamental blocks",
+        "timestamp": "2025/11/04, 09:59:36.646923",
+        "output": [
+            {
+                "uid": "0x8228056D1497909CeEA3E44A2b11b2F6286f2BAD",
+                "list_index": 2,
+                "registration_timestamp": "2025/11/04, 09:59:36.646923",
+                "last_update_timestamp": "2025/11/04, 09:59:36.646923",
+                "mining_data": {
+                    "company": "Empresa Teste",
+                    "mining_date": "2025-11-04",
+                    "mining_site": "local não especificado"
+                },
+                "code": "BLK-27",
+                "properties": {
+                    "material": "pedra",
+                    "dimensions": "200.0x0x0 mm",
+                    "weight": "500000.0 kg"
+                },
+                "hash": "hash-27-1762261175.481307",
+                "is_active": true,
+                "last_owners": [
+                    "0x134Bc0df21baF7289B6921DA171a8BC7338CfD01"
+                ],
+                "invoice_numbers": []
+            }
+        ],
+        "transactions": [
+            {
+                "contract_address": "0x55ffB60f8a60905c4df99c71Bd2F1eB89a3652E7",
+                "from": "0xeEd939c8336340e182fe0a0e72b61fb31E20a0E8",
+                "function": "add_new_ornamental_block",
+                "cost_gwei": 501.79451611,
+                "cost_eth": 5.017945161100001e-07,
+                "duration": 10.776,
+                "index": 71,
+                "gas_used": 501790,
+                "effective_gas_price": 1000009,
+                "hash": "0x01c4bf5c85a861eb26ad5cbaab227f9b2fc1e99d677c1a450dadfe504ae569f4",
+                "block_hash": "0x02bf6dd1dce806416bdc7cf300d1c9382a12da9aeab5ced2fa46054cc39b9219",
+                "block_number": 9558922,
+                "link": "https://sepolia.etherscan.io/tx/0x01c4bf5c85a861eb26ad5cbaab227f9b2fc1e99d677c1a450dadfe504ae569f4"
+            }
+        ]
+    },
+    {
+        "operation": "transfer 1 ornamental blocks",
+        "timestamp": "2025/11/04, 09:59:51.401341",
+        "output": [
+            {
+                "uid": "0x8228056D1497909CeEA3E44A2b11b2F6286f2BAD",
+                "list_index": 2,
+                "registration_timestamp": "2025/11/04, 09:59:36.646923",
+                "last_update_timestamp": "2025/11/04, 09:59:51.401341",
+                "mining_data": {
+                    "company": "Empresa Teste",
+                    "mining_date": "2025-11-04",
+                    "mining_site": "local não especificado"
+                },
+                "code": "BLK-27",
+                "properties": {
+                    "material": "pedra",
+                    "dimensions": "200.0x0x0 mm",
+                    "weight": "500000.0 kg"
+                },
+                "hash": "hash-27-1762261175.481307",
+                "is_active": true,
+                "last_owners": [
+                    "0x134Bc0df21baF7289B6921DA171a8BC7338CfD01",
+                    "0x762A2e22845a4F364a83211c2F082a9DA34db475"
+                ],
+                "invoice_numbers": [
+                    "INV-27-33-10-1762261189"
+                ]
+            }
+        ],
+        "transactions": [
+            {
+                "contract_address": "0x55ffB60f8a60905c4df99c71Bd2F1eB89a3652E7",
+                "from": "0xeEd939c8336340e182fe0a0e72b61fb31E20a0E8",
+                "function": "transfer_ornamental_block",
+                "cost_gwei": 170.043530378,
+                "cost_eth": 1.7004353037800002e-07,
+                "duration": 7.887,
+                "index": 77,
+                "gas_used": 170042,
+                "effective_gas_price": 1000009,
+                "hash": "0xa8fbc95aafaf9dab0a9b2c7309966c42b4ea56bf999d7531acfeb348e5a3496f",
+                "block_hash": "0x13fbb9a4db6d62af42b7d5c028eb5cde17ddd043a0429176ed67e9bf5582b012",
+                "block_number": 9558923,
+                "link": "https://sepolia.etherscan.io/tx/0xa8fbc95aafaf9dab0a9b2c7309966c42b4ea56bf999d7531acfeb348e5a3496f"
+            }
+        ]
+    },
+    {
+        "operation": "add 1 new ornamental blocks",
+        "timestamp": "2025/11/05, 09:42:07.463226",
+        "output": [
+            {
+                "uid": "0x4ec4b553bE2Ef271B441058e1FEF7F729CE463A8",
+                "list_index": 3,
+                "registration_timestamp": "2025/11/05, 09:42:07.463226",
+                "last_update_timestamp": "2025/11/05, 09:42:07.463226",
+                "mining_data": {
+                    "company": "Joao",
+                    "mining_date": "2025-11-05",
+                    "mining_site": "local não especificado"
+                },
+                "code": "BLK-27",
+                "properties": {
+                    "material": "pedra",
+                    "dimensions": "200.0x0x0 mm",
+                    "weight": "500000.0 kg"
+                },
+                "hash": "hash-27-1762346526.596275",
+                "is_active": true,
+                "last_owners": [
+                    "0x762A2e22845a4F364a83211c2F082a9DA34db475"
+                ],
+                "invoice_numbers": []
+            }
+        ],
+        "transactions": [
+            {
+                "contract_address": "0x55ffB60f8a60905c4df99c71Bd2F1eB89a3652E7",
+                "from": "0xeEd939c8336340e182fe0a0e72b61fb31E20a0E8",
+                "function": "add_new_ornamental_block",
+                "cost_gwei": 479.359272894,
+                "cost_eth": 4.793592728940001e-07,
+                "duration": 3.23,
+                "index": 109,
+                "gas_used": 479354,
+                "effective_gas_price": 1000011,
+                "hash": "0x169324db2178fc855d8de653a311779b7eb3e486f7ccf4207fddbfb32a034e01",
+                "block_hash": "0xed91a0c311059fa3ebddf7036d87a116fd9bd42d4127a909936f41f375cc1e94",
+                "block_number": 9566005,
+                "link": "https://sepolia.etherscan.io/tx/0x169324db2178fc855d8de653a311779b7eb3e486f7ccf4207fddbfb32a034e01"
+            }
+        ]
+    },
+    {
+        "operation": "transfer 1 ornamental blocks",
+        "timestamp": "2025/11/05, 09:42:13.724475",
+        "output": [
+            {
+                "uid": "0x4ec4b553bE2Ef271B441058e1FEF7F729CE463A8",
+                "list_index": 3,
+                "registration_timestamp": "2025/11/05, 09:42:07.463226",
+                "last_update_timestamp": "2025/11/05, 09:42:13.724475",
+                "mining_data": {
+                    "company": "Joao",
+                    "mining_date": "2025-11-05",
+                    "mining_site": "local não especificado"
+                },
+                "code": "BLK-27",
+                "properties": {
+                    "material": "pedra",
+                    "dimensions": "200.0x0x0 mm",
+                    "weight": "500000.0 kg"
+                },
+                "hash": "hash-27-1762346526.596275",
+                "is_active": true,
+                "last_owners": [
+                    "0x762A2e22845a4F364a83211c2F082a9DA34db475",
+                    "0x134Bc0df21baF7289B6921DA171a8BC7338CfD01"
+                ],
+                "invoice_numbers": [
+                    "INV-27-10-33-1762346532"
+                ]
+            }
+        ],
+        "transactions": [
+            {
+                "contract_address": "0x55ffB60f8a60905c4df99c71Bd2F1eB89a3652E7",
+                "from": "0xeEd939c8336340e182fe0a0e72b61fb31E20a0E8",
+                "function": "transfer_ornamental_block",
+                "cost_gwei": 173.633,
+                "cost_eth": 1.73633e-07,
+                "duration": 9.571,
+                "index": 38,
+                "gas_used": 173633,
+                "effective_gas_price": 1000000,
+                "hash": "0x743287f86977f2da9dc7bd0d48dac63b8ad6ab7cb3a00a517ae8fec9f3fff1f5",
+                "block_hash": "0xb3fc91b3887f202d912925cee1afef5bb7b166c66db3060d5a1b1359fc765511",
+                "block_number": 9566006,
+                "link": "https://sepolia.etherscan.io/tx/0x743287f86977f2da9dc7bd0d48dac63b8ad6ab7cb3a00a517ae8fec9f3fff1f5"
+            }
+        ]
     }
 ]
